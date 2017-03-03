@@ -72,9 +72,10 @@ public class AuditLogListener
         obj.put("createTime", formatter.format(queryCompletedEvent.getCreateTime()));
         obj.put("executeStartTime", formatter.format(queryCompletedEvent.getExecutionStartTime()));
 
+        obj.put("remoteClientAddress", queryCompletedEvent.getContext().getRemoteClientAddress().orElse(""));
         obj.put("clientUser", queryCompletedEvent.getContext().getUser());
-        obj.put("userAgent", queryCompletedEvent.getContext().getUserAgent().toString());
-        obj.put("source", queryCompletedEvent.getContext().getSource().toString());
+        obj.put("userAgent", queryCompletedEvent.getContext().getUserAgent().orElse(""));
+        obj.put("source", queryCompletedEvent.getContext().getSource().orElse(""));
 
         try (FileWriter file = new FileWriter(auditLogPath + File.separator + auditLogFileName, true)) {
             file.write(obj.toJSONString());
