@@ -29,7 +29,7 @@ public class AuditLogFactory
     @Override
     public String getName()
     {
-        return "yj-presto-audit-log";
+        return "presto-audit-log";
     }
 
     @Override

@@ -8,8 +8,8 @@
         <version>0.157.1-t.0.7</version>
     </parent>
 
-    <artifactId>presto-yj-audit</artifactId>
-    <description>Presto - Yahoo! JAPAN Audit log</description>
+    <artifactId>presto-audit</artifactId>
+    <description>Presto - Audit log</description>
     <packaging>presto-plugin</packaging>
 
     <licenses>
