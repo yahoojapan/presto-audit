@@ -50,12 +50,10 @@ public class AuditLogListener
     @Override
     public void queryCompleted(QueryCompletedEvent queryCompletedEvent)
     {
-        log.debug("sso.output SQL COMPLETE : [ %s ]", queryCompletedEvent.getMetadata().getQuery());
-
         JSONObject obj = new JSONObject();
 
         DateTimeFormatter formatter =
-                DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(ZoneId.systemDefault());
+                DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSS").withZone(ZoneId.systemDefault());
 
         obj.put("queryid", queryCompletedEvent.getMetadata().getQueryId());
         obj.put("query", queryCompletedEvent.getMetadata().getQuery());
@@ -63,7 +61,7 @@ public class AuditLogListener
         obj.put("state", queryCompletedEvent.getMetadata().getQueryState());
 
         obj.put("cpuTime", String.valueOf(queryCompletedEvent.getStatistics().getCpuTime().toMillis() / 1000.0));
-        obj.put("wallTime", String.valueOf(queryCompletedEvent.getStatistics().getWallTime().toMillis() / 1000.0));
+        obj.put("wallTime", String.valueOf((queryCompletedEvent.getEndTime().toEpochMilli() - queryCompletedEvent.getExecutionStartTime().toEpochMilli()) / 1000.0));
         obj.put("queuedTime", String.valueOf(queryCompletedEvent.getStatistics().getQueuedTime().toMillis() / 1000.0));
         obj.put("peakMemoryBytes", String.valueOf(queryCompletedEvent.getStatistics().getPeakMemoryBytes()));
         obj.put("totalBytes", String.valueOf(queryCompletedEvent.getStatistics().getTotalBytes()));
@@ -71,6 +69,7 @@ public class AuditLogListener
 
         obj.put("createTime", formatter.format(queryCompletedEvent.getCreateTime()));
         obj.put("executeStartTime", formatter.format(queryCompletedEvent.getExecutionStartTime()));
+        obj.put("endTime", formatter.format(queryCompletedEvent.getEndTime()));
 
         obj.put("remoteClientAddress", queryCompletedEvent.getContext().getRemoteClientAddress().orElse(""));
         obj.put("clientUser", queryCompletedEvent.getContext().getUser());
