@@ -4,13 +4,13 @@
 
     <parent>
         <groupId>com.facebook.presto</groupId>
-        <artifactId>presto-root</artifactId>
+        <artifactId>presto-audit</artifactId>
         <version>0.157.1-t.0.7</version>
     </parent>
 
-    <artifactId>presto-audit</artifactId>
+    <artifactId>presto-audit-plugin</artifactId>
     <description>Presto - Audit log</description>
-    <packaging>pom</packaging>
+    <packaging>presto-plugin</packaging>
 
     <licenses>
         <license>
@@ -27,10 +27,7 @@
     </scm>
 
     <properties>
-        <!-- Uncomment this if you're placing this as a subdirectory of presto and you want to run their style checker.  Otherwise, you can get rid of it. -->
-        <!--
-            <air.main.basedir>${project.parent.basedir}</air.main.basedir>
-        -->
+        <air.main.basedir>${project.parent.basedir}</air.main.basedir>
         <dep.airlift.version>0.139-t.1.1</dep.airlift.version>
         <!--<presto.version>0.142</presto.version>-->
         <dep.slice.version>0.27</dep.slice.version>
@@ -38,6 +35,17 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>io.airlift</groupId>
+            <artifactId>log</artifactId>
+            <version>${dep.airlift.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
         <!-- Presto SPI -->
         <dependency>
             <groupId>com.facebook.presto</groupId>
@@ -94,12 +102,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- for JSON output -->
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1</version>
+        </dependency>
     </dependencies>
-
-    <modules>
-        <module>presto-audit-plugin</module>
-        <module>presto-audit-rpm</module>
-    </modules>
 
     <build>
         <plugins>
