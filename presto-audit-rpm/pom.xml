@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.facebook.presto</groupId>
+        <artifactId>presto-audit</artifactId>
+        <version>0.157.1-t.0.7</version>
+    </parent>
+
+    <artifactId>presto-audit-rpm</artifactId>
+    <description>Presto - Audit log</description>
+    <packaging>rpm</packaging>
+
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git@github.com:zz22394/presto-audit.git</connection>
+        <url>https://github.com/zz22394/presto-audit.git</url>
+        <tag>0.157.1-t.0.7</tag>
+    </scm>
+
+    <properties>
+        <air.main.basedir>${project.parent.basedir}</air.main.basedir>
+        <dep.airlift.version>0.139-t.1.1</dep.airlift.version>
+        <!--<presto.version>0.142</presto.version>-->
+        <dep.slice.version>0.27</dep.slice.version>
+        <!--<dep.packaging.version>${dep.airlift.version}</dep.packaging.version>-->
+        <server.tar.package>/presto-audit-${project.version}/</server.tar.package>
+    </properties>
+
+    <build>
+        <plugins>
+            <!-- Copy folder -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.facebook.presto</groupId>
+                                    <artifactId>presto-audit</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+
+            <!-- Build presto-audit rpm using the untarred artifacts BEGIN -->
+            <plugin>
+                <groupId>com.teradata</groupId>
+                <artifactId>redlinerpm-maven-plugin-td</artifactId>
+                <version>2.1.3</version>
+                <extensions>true</extensions>
+
+                <configuration>
+                    <performCheckingForExtraFiles>false</performCheckingForExtraFiles>
+
+                    <packages>
+                        <package>
+                            <name>presto-audit-rpm</name>
+                            <nameOverride>presto-audit-rpm-${project.version}.x86_64.rpm</nameOverride>
+                            <version>${project.version}</version>
+                            <release>1</release>
+
+                            <group>Applications/Databases</group>
+                            <description>Presto Server Audit RPM Package.</description>
+                            <architecture>x86_64</architecture>
+                            <postInstallScriptFile>src/main/rpm/postinstall</postInstallScriptFile>
+
+                            <dependencies>
+                                <dependency>
+                                    <name>python</name>
+                                    <version>[2.4,)</version>
+                                </dependency>
+                            </dependencies>
+
+                            <rules>
+                                <rule>
+                                    <destination>/usr/lib/presto/lib/plugin/yj-audit</destination>
+                                    <base>${server.tar.package}</base>
+                                    <includes>
+                                        <include>*</include>
+                                    </includes>
+                                </rule>
+                            </rules>
+                        </package>
+                    </packages>
+                </configuration>
+            </plugin>
+            <!-- Build presto-audit rpm END -->
+
+        </plugins>
+    </build>
+
+</project>
