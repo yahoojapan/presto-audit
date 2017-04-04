@@ -98,7 +98,7 @@
 
                             <rules>
                                 <rule>
-                                    <destination>/usr/lib/presto/lib/plugin</destination>
+                                    <destination>/usr/lib/presto/lib/plugin/yj-audit</destination>
                                     <base>${server.tar.package}</base>
                                     <includes>
                                         <include>*</include>
