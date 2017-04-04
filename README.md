@@ -15,3 +15,24 @@
 -->
 #Presto Query Audit Log(log history)
 Plugin for Presto to save queries and metrics into files.  
+
+# Build
+```bash
+mvn clean package
+```
+
+# Usage
+## install
+```bash
+sudo rpm -ivh presto-audit-rpm-0.157.1-t.0.7.x86_64.rpm
+```
+
+## 実行
+下記プロパティファイルを作成し、/etc/presto/配下に置く。
+ファイル名：event-listener.properties
+```bash
+event-listener.name=presto-audit-log
+event-listener.auditlog_path=/var/log/presto/
+event-listener.auditlog_filename=presto-auditlog.log
+```
+
