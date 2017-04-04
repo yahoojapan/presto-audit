@@ -29,7 +29,6 @@
     <properties>
         <air.main.basedir>${project.parent.basedir}</air.main.basedir>
         <dep.airlift.version>0.139-t.1.1</dep.airlift.version>
-        <!--<presto.version>0.142</presto.version>-->
         <dep.slice.version>0.27</dep.slice.version>
         <dep.packaging.version>${dep.airlift.version}</dep.packaging.version>
     </properties>
@@ -38,7 +37,6 @@
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>log</artifactId>
-            <version>${dep.airlift.version}</version>
         </dependency>
 
         <dependency>
@@ -69,37 +67,6 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
             <scope>provided</scope>
-        </dependency>
-
-        <!-- for testing -->
-        <dependency>
-            <groupId>com.facebook.presto</groupId>
-            <artifactId>presto-main</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.airlift</groupId>
-            <artifactId>testing</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.airlift</groupId>
-            <artifactId>http-server</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.airlift</groupId>
-            <artifactId>node</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <!-- for JSON output -->
