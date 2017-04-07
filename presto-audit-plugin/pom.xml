@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.facebook.presto</groupId>
         <artifactId>presto-audit</artifactId>
-        <version>0.157.1-t.0.7</version>
+        <version>0.160</version>
     </parent>
 
     <artifactId>presto-audit-plugin</artifactId>
@@ -23,12 +23,12 @@
     <scm>
         <connection>scm:git:git@github.com:zz22394/presto-audit.git</connection>
         <url>https://github.com/zz22394/presto-audit.git</url>
-        <tag>0.157.1-t.0.7</tag>
+        <tag>0.160</tag>
     </scm>
 
     <properties>
         <air.main.basedir>${project.parent.basedir}</air.main.basedir>
-        <dep.airlift.version>0.139-t.1.1</dep.airlift.version>
+        <dep.airlift.version>0.139</dep.airlift.version>
         <dep.slice.version>0.27</dep.slice.version>
         <dep.packaging.version>${dep.airlift.version}</dep.packaging.version>
     </properties>
