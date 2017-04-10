@@ -64,7 +64,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.3</version>
+                <version>3.6</version>
             </plugin>
 
             <!-- Build presto-audit rpm using the untarred artifacts BEGIN -->
