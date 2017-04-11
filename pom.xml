@@ -127,6 +127,7 @@
         <module>presto-audit-rpm</module>
     </modules>
 
+    <!--
     <build>
         <pluginManagement>
             <plugins>
@@ -155,4 +156,5 @@
             </build>
         </profile>
     </profiles>
+    -->
 </project>
