@@ -35,6 +35,7 @@
         <server.tar.package>/presto-audit-plugin-${project.version}/</server.tar.package>
     </properties>
 
+    <!--
     <dependencies>
         <dependency>
             <groupId>com.teradata</groupId>
@@ -60,6 +61,7 @@
             </exclusions>
         </dependency>
     </dependencies>
+    -->
 
     <build>
         <pluginManagement>
