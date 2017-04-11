@@ -95,6 +95,7 @@
         </dependency>
 
         <!--
+        -->
         <dependency>
             <groupId>com.teradata</groupId>
             <artifactId>redlinerpm-maven-plugin-td</artifactId>
@@ -118,7 +119,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        -->
 
     </dependencies>
 
