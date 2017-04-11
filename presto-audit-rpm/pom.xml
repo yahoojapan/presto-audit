@@ -90,10 +90,8 @@
             </exclusions>
         </dependency>
     </dependencies>
-    -->
 
-    <build>
-        <pluginManagement>
+            <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -117,6 +115,10 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+    -->
+
+    <build>
+
 
         <plugins>
             <!-- Copy folder -->
