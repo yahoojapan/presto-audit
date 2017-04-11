@@ -35,6 +35,14 @@
         <server.tar.package>/presto-audit-plugin-${project.version}/</server.tar.package>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-site-plugin</artifactId>
+            <version>3.3.9</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <!-- Copy folder -->
@@ -64,7 +72,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.6</version>
+                <version>3.3.9</version>
             </plugin>
 
             <!-- Build presto-audit rpm using the untarred artifacts BEGIN -->
