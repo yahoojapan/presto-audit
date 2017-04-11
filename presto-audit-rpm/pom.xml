@@ -71,8 +71,24 @@
                     <artifactId>maven-site-plugin</artifactId>
                     <version>3.6</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-model-builder</artifactId>
+                    <version>3.6</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-model</artifactId>
+                    <version>3.6</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-aether-provider</artifactId>
+                    <version>3.6</version>
+                </plugin>
             </plugins>
         </pluginManagement>
+
         <plugins>
             <!-- Copy folder -->
             <plugin>
