@@ -33,11 +33,10 @@
         <!--<dep.slice.version>0.27</dep.slice.version>-->
         <!--<dep.packaging.version>${dep.airlift.version}</dep.packaging.version>-->
         <server.tar.package>/presto-audit-plugin-${project.version}/</server.tar.package>
-        <maven.artifactory.url.server>edge.artifactory.corp.yahoo.co.jp</maven.artifactory.url.server>
     </properties>
 
-
-    <!-- anemos libraly repository config -->
+    <!-- anemos libraly repository config
+    <maven.artifactory.url.server>edge.artifactory.corp.yahoo.co.jp</maven.artifactory.url.server>
     <repositories>
         <repository>
             <id>artifactory-local-release</id>
@@ -51,7 +50,6 @@
         </repository>
     </repositories>
 
-    <!-- anemos maven plugin repository config -->
     <pluginRepositories>
         <pluginRepository>
             <id>artifactory-local-release</id>
@@ -64,6 +62,7 @@
             <url>http://${maven.artifactory.url.server}:8000/artifactory/maven-ext-release/</url>
         </pluginRepository>
     </pluginRepositories>
+    -->
 
     <!--
     <dependencies>
