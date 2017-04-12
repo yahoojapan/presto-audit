@@ -97,7 +97,7 @@
 
     <modules>
         <module>presto-audit-plugin</module>
-        <!--<module>presto-audit-rpm</module>-->
+        <module>presto-audit-rpm</module>
     </modules>
 
     <!--
