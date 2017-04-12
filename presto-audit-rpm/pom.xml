@@ -159,10 +159,10 @@
 
                     <packages>
                         <package>
-                            <name>presto-audit-rpm</name>
-                            <nameOverride>presto-audit-rpm-${project.version}.x86_64.rpm</nameOverride>
+                            <name>presto-audit-plugin</name>
+                            <nameOverride>presto-audit-plugin-${project.version}-el7.1.x86_64.rpm</nameOverride>
                             <version>${project.version}</version>
-                            <release>1</release>
+                            <release>el7.1</release>
 
                             <group>Applications/Databases</group>
                             <description>Presto Server Audit RPM Package.</description>
