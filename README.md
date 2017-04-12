@@ -26,6 +26,10 @@ mvn clean package
 ```bash
 sudo rpm -ivh presto-audit-rpm-0.157.1-t.0.7.x86_64.rpm
 ```
+## uninstall
+```bash
+sudo rpm -e presto-audit-rpm
+```
 
 ## 実行
 下記プロパティファイルを作成し、/etc/presto/配下に置く。
