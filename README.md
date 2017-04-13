@@ -17,9 +17,16 @@
 Plugin for Presto to save queries and metrics into files.  
 
 # Build
+## RPMを作らない、jarのみ作る
 ```bash
-mvn clean package
+mvn -B -e clean package -Dmaven.test.skip=true -pl '!presto-audit-rpm,'
 ```
+
+## RPMを作る
+```bash
+mvn -B -e clean package -Dminor.version=1 -Dbuild.no=2
+```
+
 
 # Usage
 ## install

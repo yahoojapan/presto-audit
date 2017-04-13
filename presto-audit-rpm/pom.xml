@@ -29,10 +29,8 @@
     <properties>
         <air.main.basedir>${project.parent.basedir}</air.main.basedir>
         <dep.airlift.version>0.139</dep.airlift.version>
-        <!--<presto.version>0.142</presto.version>-->
-        <!--<dep.slice.version>0.27</dep.slice.version>-->
-        <!--<dep.packaging.version>${dep.airlift.version}</dep.packaging.version>-->
         <server.tar.package>/presto-audit-plugin-${project.version}/</server.tar.package>
+
     </properties>
 
 
@@ -78,8 +76,8 @@
                     <packages>
                         <package>
                             <name>presto-audit-plugin</name>
-                            <nameOverride>presto-audit-plugin-${project.version}-el7.x86_64.rpm</nameOverride>
-                            <version>${project.version}</version>
+                            <nameOverride>presto-audit-plugin-${project.version}.${minor.version}-${build.no}-el7.x86_64.rpm</nameOverride>
+                            <version>${project.version}.${minor.version}.${build.no}</version>
                             <release>el7</release>
 
                             <group>Applications/Databases</group>
