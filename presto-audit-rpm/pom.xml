@@ -27,10 +27,10 @@
     </scm>
 
     <properties>
+        <minor.version>1</minor.version>
         <air.main.basedir>${project.parent.basedir}</air.main.basedir>
         <dep.airlift.version>0.139</dep.airlift.version>
         <server.tar.package>/presto-audit-plugin-${project.version}/</server.tar.package>
-
     </properties>
 
 
