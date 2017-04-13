@@ -27,99 +27,15 @@
     </scm>
 
     <properties>
+        <minor.version>1</minor.version>
         <air.main.basedir>${project.parent.basedir}</air.main.basedir>
         <dep.airlift.version>0.139</dep.airlift.version>
-        <!--<presto.version>0.142</presto.version>-->
-        <!--<dep.slice.version>0.27</dep.slice.version>-->
-        <!--<dep.packaging.version>${dep.airlift.version}</dep.packaging.version>-->
         <server.tar.package>/presto-audit-plugin-${project.version}/</server.tar.package>
     </properties>
 
-    <!-- anemos libraly repository config
-    <maven.artifactory.url.server>edge.artifactory.corp.yahoo.co.jp</maven.artifactory.url.server>
-    <repositories>
-        <repository>
-            <id>artifactory-local-release</id>
-            <name>maven-local-release</name>
-            <url>http://${maven.artifactory.url.server}:8000/artifactory/maven-local-release/</url>
-        </repository>
-        <repository>
-            <id>artifactory-ext-release</id>
-            <name>maven-ext-release</name>
-            <url>http://${maven.artifactory.url.server}:8000/artifactory/maven-ext-release/</url>
-        </repository>
-    </repositories>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>artifactory-local-release</id>
-            <name>maven-local-release</name>
-            <url>http://${maven.artifactory.url.server}:8000/artifactory/maven-local-release/</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>artifactory-ext-release</id>
-            <name>maven-local-release</name>
-            <url>http://${maven.artifactory.url.server}:8000/artifactory/maven-ext-release/</url>
-        </pluginRepository>
-    </pluginRepositories>
-    -->
-
-    <!--
-    <dependencies>
-        <dependency>
-            <groupId>com.teradata</groupId>
-            <artifactId>redlinerpm-maven-plugin-td</artifactId>
-            <version>2.1.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.maven</groupId>
-                    <artifactId>maven-site-plugin</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.maven</groupId>
-                    <artifactId>maven-model-builder</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.maven</groupId>
-                    <artifactId>maven-model</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.maven</groupId>
-                    <artifactId>maven-aether-provider</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-    </dependencies>
-
-            <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <version>3.6</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-model-builder</artifactId>
-                    <version>3.6</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-model</artifactId>
-                    <version>3.6</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-aether-provider</artifactId>
-                    <version>3.6</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    -->
 
     <build>
-
-
         <plugins>
             <!-- Copy folder -->
             <plugin>
@@ -160,9 +76,9 @@
                     <packages>
                         <package>
                             <name>presto-audit-plugin</name>
-                            <nameOverride>presto-audit-plugin-${project.version}-el7.1.x86_64.rpm</nameOverride>
-                            <version>${project.version}</version>
-                            <release>el7.1</release>
+                            <nameOverride>presto-audit-plugin-${project.version}.${minor.version}-${build.no}-el7.x86_64.rpm</nameOverride>
+                            <version>${project.version}.${minor.version}.${build.no}</version>
+                            <release>el7</release>
 
                             <group>Applications/Databases</group>
                             <description>Presto Server Audit RPM Package.</description>
