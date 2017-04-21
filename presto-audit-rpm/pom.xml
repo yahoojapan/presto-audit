@@ -76,7 +76,7 @@
                     <packages>
                         <package>
                             <name>presto-audit-plugin</name>
-                            <nameOverride>presto-audit-plugin-${project.version}.${minor.version}-${build.no}-el7.x86_64.rpm</nameOverride>
+                            <nameOverride>presto-audit-plugin-${project.version}.${minor.version}-${build.no}.el7.x86_64.rpm</nameOverride>
                             <version>${project.version}.${minor.version}.${build.no}</version>
                             <release>el7</release>
 
