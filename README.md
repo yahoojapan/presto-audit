@@ -13,23 +13,40 @@
   limitations under the License. See accompanying LICENSE file.
 {% endcomment %}
 -->
-#Presto Query Audit Log(log history)
+# Presto Query Audit Log(log history)
 Plugin for Presto to save queries and metrics into files.  
 
+## Requirement
+* Presto 0.167t later
+
 # Build
+## RPMを作らない、jarのみ作る
 ```bash
-mvn clean package
+mvn -B -e clean package -Dmaven.test.skip=true -pl '!presto-audit-rpm,'
 ```
+
+## RPMを作る
+```bash
+mvn -B -e clean package -Dbuild.no=2
+```
+
 
 # Usage
 ## install
 ```bash
-sudo rpm -ivh presto-audit-rpm-0.157.1-t.0.7.x86_64.rpm
+sudo rpm -ivh presto-audit-plugin-0.157.1-t.0.7.x86_64.rpm
+```
+## uninstall
+```bash
+sudo rpm -e presto-audit-plugin
 ```
 
 ## 実行
 下記プロパティファイルを作成し、/etc/presto/配下に置く。
 ファイル名：event-listener.properties
+
+eg.
+/etc/presto/event-listener.properties
 ```bash
 event-listener.name=presto-audit-log
 event-listener.auditlog_path=/var/log/presto/
