@@ -55,7 +55,7 @@ public class AuditLogListener
         DateTimeFormatter formatter =
                 DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSS").withZone(ZoneId.systemDefault());
 
-        obj.put("queryid", queryCompletedEvent.getMetadata().getQueryId());
+        obj.put("queryId", queryCompletedEvent.getMetadata().getQueryId());
         obj.put("query", queryCompletedEvent.getMetadata().getQuery());
         obj.put("uri", queryCompletedEvent.getMetadata().getUri().toString());
         obj.put("state", queryCompletedEvent.getMetadata().getQueryState());
@@ -81,7 +81,7 @@ public class AuditLogListener
             file.write(System.lineSeparator());
         }
         catch (Exception e) {
-            log.error("Error Write Eventlog to File. file path=" + auditLogPath + ", file name=" + auditLogFileName + ", Eventlog: " + obj);
+            log.error("Error Write EventLog to File. file path=" + auditLogPath + ", file name=" + auditLogFileName + ", EventLog: " + obj);
         }
     }
 }
