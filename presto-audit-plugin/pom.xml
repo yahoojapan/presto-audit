@@ -63,12 +63,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- for JSON output -->
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
