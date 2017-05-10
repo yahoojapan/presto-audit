@@ -17,7 +17,7 @@
 Plugin for Presto to save queries and metrics into files.  
 
 ## Requirement
-* Presto 0.167t or later
+* Presto 0.167 or later
 
 # Build
 ## Patern 1: just build jar file, without RPM package
