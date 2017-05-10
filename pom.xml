@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.facebook.presto</groupId>
         <artifactId>presto-root</artifactId>
-        <version>0.160</version>
+        <version>0.167</version>
     </parent>
 
     <artifactId>presto-audit</artifactId>
@@ -31,9 +31,8 @@
         <!--
             <air.main.basedir>${project.parent.basedir}</air.main.basedir>
         -->
-        <dep.airlift.version>0.139</dep.airlift.version>
-        <!--<presto.version>0.142</presto.version>-->
-        <dep.slice.version>0.27</dep.slice.version>
+        <dep.airlift.version>0.142</dep.airlift.version>
+        <dep.slice.version>0.28</dep.slice.version>
         <dep.packaging.version>${dep.airlift.version}</dep.packaging.version>
     </properties>
 

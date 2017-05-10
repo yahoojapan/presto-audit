@@ -16,8 +16,8 @@ package jp.co.yahoo.presto.audit;
 import com.facebook.presto.spi.eventlistener.EventListener;
 import com.facebook.presto.spi.eventlistener.QueryCompletedEvent;
 import com.facebook.presto.spi.eventlistener.QueryCreatedEvent;
+import com.google.gson.Gson;
 import io.airlift.log.Logger;
-import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -44,40 +44,42 @@ public class AuditLogListener
     @Override
     public void queryCreated(QueryCreatedEvent queryCreatedEvent)
     {
-        log.debug("sso.output SQL BEGIN    : [ %s ]", queryCreatedEvent.getMetadata().getQuery());
+        log.debug("QUERY SQL : [ %s ]", queryCreatedEvent.getMetadata().getQuery());
     }
 
     @Override
     public void queryCompleted(QueryCompletedEvent queryCompletedEvent)
     {
-        JSONObject obj = new JSONObject();
-
         DateTimeFormatter formatter =
                 DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSS").withZone(ZoneId.systemDefault());
 
-        obj.put("queryId", queryCompletedEvent.getMetadata().getQueryId());
-        obj.put("query", queryCompletedEvent.getMetadata().getQuery());
-        obj.put("uri", queryCompletedEvent.getMetadata().getUri().toString());
-        obj.put("state", queryCompletedEvent.getMetadata().getQueryState());
+        AuditRecord record = new AuditRecord();
+        record.setQueryId(queryCompletedEvent.getMetadata().getQueryId());
 
-        obj.put("cpuTime", String.valueOf(queryCompletedEvent.getStatistics().getCpuTime().toMillis() / 1000.0));
-        obj.put("wallTime", String.valueOf((queryCompletedEvent.getEndTime().toEpochMilli() - queryCompletedEvent.getExecutionStartTime().toEpochMilli()) / 1000.0));
-        obj.put("queuedTime", String.valueOf(queryCompletedEvent.getStatistics().getQueuedTime().toMillis() / 1000.0));
-        obj.put("peakMemoryBytes", String.valueOf(queryCompletedEvent.getStatistics().getPeakMemoryBytes()));
-        obj.put("totalBytes", String.valueOf(queryCompletedEvent.getStatistics().getTotalBytes()));
-        obj.put("totalRows", String.valueOf(queryCompletedEvent.getStatistics().getTotalRows()));
+        //SQL Query Text
+        record.setQuery(queryCompletedEvent.getMetadata().getQuery());
+        record.setUri(queryCompletedEvent.getMetadata().getUri().toString());
+        record.setState(queryCompletedEvent.getMetadata().getQueryState());
 
-        obj.put("createTime", formatter.format(queryCompletedEvent.getCreateTime()));
-        obj.put("executeStartTime", formatter.format(queryCompletedEvent.getExecutionStartTime()));
-        obj.put("endTime", formatter.format(queryCompletedEvent.getEndTime()));
+        record.setCpuTime(queryCompletedEvent.getStatistics().getCpuTime().toMillis() / 1000.0);
+        record.setWallTime((queryCompletedEvent.getEndTime().toEpochMilli() - queryCompletedEvent.getExecutionStartTime().toEpochMilli()) / 1000.0);
+        record.setQueuedTime(queryCompletedEvent.getStatistics().getQueuedTime().toMillis() / 1000.0);
+        record.setPeakMemoryBytes(queryCompletedEvent.getStatistics().getPeakMemoryBytes());
+        record.setTotalBytes(queryCompletedEvent.getStatistics().getTotalBytes());
+        record.setTotalRows(queryCompletedEvent.getStatistics().getTotalRows());
 
-        obj.put("remoteClientAddress", queryCompletedEvent.getContext().getRemoteClientAddress().orElse(""));
-        obj.put("clientUser", queryCompletedEvent.getContext().getUser());
-        obj.put("userAgent", queryCompletedEvent.getContext().getUserAgent().orElse(""));
-        obj.put("source", queryCompletedEvent.getContext().getSource().orElse(""));
+        record.setCreateTime(formatter.format(queryCompletedEvent.getCreateTime()));
+        record.setExecuteStartTime(formatter.format(queryCompletedEvent.getExecutionStartTime()));
+        record.setEndTime(formatter.format(queryCompletedEvent.getEndTime()));
 
+        record.setRemoteClientAddress(queryCompletedEvent.getContext().getRemoteClientAddress().orElse(""));
+        record.setClientUser(queryCompletedEvent.getContext().getUser());
+        record.setUserAgent(queryCompletedEvent.getContext().getUserAgent().orElse(""));
+        record.setSource(queryCompletedEvent.getContext().getSource().orElse(""));
+
+        Gson obj = new Gson();
         try (FileWriter file = new FileWriter(auditLogPath + File.separator + auditLogFileName, true)) {
-            file.write(obj.toJSONString());
+            file.write(obj.toJson(record));
             file.write(System.lineSeparator());
         }
         catch (Exception e) {
