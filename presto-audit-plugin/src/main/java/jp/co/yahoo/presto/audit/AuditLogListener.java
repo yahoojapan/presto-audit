@@ -37,8 +37,8 @@ public class AuditLogListener
 
     public AuditLogListener(Map<String, String> requiredConfig)
     {
-        auditLogPath = requireNonNull(requiredConfig.get("event-listener.auditlog_path"), "event-listener.auditlog_path is null").toString();
-        auditLogFileName = requireNonNull(requiredConfig.get("event-listener.auditlog_filename"), "event-listener.auditlog_filename is null").toString();
+        auditLogPath = requireNonNull(requiredConfig.get("event-listener.auditlog-path"), "event-listener.auditlog-path is null").toString();
+        auditLogFileName = requireNonNull(requiredConfig.get("event-listener.auditlog-filename"), "event-listener.auditlog-filename is null").toString();
     }
 
     @Override
