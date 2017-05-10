@@ -23,7 +23,7 @@
     <scm>
         <connection>scm:git:git@github.com:zz22394/presto-audit.git</connection>
         <url>https://github.com/zz22394/presto-audit.git</url>
-        <tag>0.160</tag>
+        <tag>0.167</tag>
     </scm>
 
     <properties>
