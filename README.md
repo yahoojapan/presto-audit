@@ -20,12 +20,12 @@ Plugin for Presto to save queries and metrics into files.
 * Presto 0.167t later
 
 # Build
-## RPMを作らない、jarのみ作る
+## Patern 1: just build jar file, without RPM package
 ```bash
 mvn -B -e clean package -Dmaven.test.skip=true -pl '!presto-audit-rpm,'
 ```
 
-## RPMを作る
+## Patern 2: build jar file, then RPM package
 ```bash
 mvn -B -e clean package -Dbuild.no=2
 ```
@@ -41,9 +41,8 @@ sudo rpm -ivh presto-audit-plugin-0.157.1-t.0.7.x86_64.rpm
 sudo rpm -e presto-audit-plugin
 ```
 
-## 実行
-下記プロパティファイルを作成し、/etc/presto/配下に置く。
-ファイル名：event-listener.properties
+## run
+create a event-listener.properties file under /etc/presto/ .
 
 eg.
 /etc/presto/event-listener.properties
