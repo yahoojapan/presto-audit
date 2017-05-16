@@ -29,24 +29,28 @@ import java.util.Map;
 import static java.util.Objects.requireNonNull;
 
 public class AuditLogListener
-        implements EventListener {
+        implements EventListener
+{
     private static final Logger log = Logger.get(AuditLogListener.class);
 
     private final String auditLogPath;
     private final String auditLogFileName;
 
-    public AuditLogListener(Map<String, String> requiredConfig) {
+    public AuditLogListener(Map<String, String> requiredConfig)
+    {
         auditLogPath = requireNonNull(requiredConfig.get("event-listener.auditlog-path"), "event-listener.auditlog-path is null").toString();
         auditLogFileName = requireNonNull(requiredConfig.get("event-listener.auditlog-filename"), "event-listener.auditlog-filename is null").toString();
     }
 
     @Override
-    public void queryCreated(QueryCreatedEvent queryCreatedEvent) {
+    public void queryCreated(QueryCreatedEvent queryCreatedEvent)
+    {
         log.debug("QUERY SQL : [ %s ]", queryCreatedEvent.getMetadata().getQuery());
     }
 
     @Override
-    public void queryCompleted(QueryCompletedEvent queryCompletedEvent) {
+    public void queryCompleted(QueryCompletedEvent queryCompletedEvent)
+    {
         DateTimeFormatter formatter =
                 DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSS").withZone(ZoneId.systemDefault());
 
@@ -78,7 +82,8 @@ public class AuditLogListener
         try (FileWriter file = new FileWriter(auditLogPath + File.separator + auditLogFileName, true)) {
             file.write(obj.toJson(record));
             file.write(System.lineSeparator());
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.error("Error Write EventLog to File. file path=" + auditLogPath + ", file name=" + auditLogFileName + ", EventLog: " + obj);
         }
     }
