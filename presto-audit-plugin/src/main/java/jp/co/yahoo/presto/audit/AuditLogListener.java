@@ -17,6 +17,7 @@ import com.facebook.presto.spi.eventlistener.EventListener;
 import com.facebook.presto.spi.eventlistener.QueryCompletedEvent;
 import com.facebook.presto.spi.eventlistener.QueryCreatedEvent;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.airlift.log.Logger;
 
 import java.io.File;
@@ -77,7 +78,7 @@ public class AuditLogListener
         record.setUserAgent(queryCompletedEvent.getContext().getUserAgent().orElse(""));
         record.setSource(queryCompletedEvent.getContext().getSource().orElse(""));
 
-        Gson obj = new Gson();
+        Gson obj = new GsonBuilder().disableHtmlEscaping().create();
         try (FileWriter file = new FileWriter(auditLogPath + File.separator + auditLogFileName, true)) {
             file.write(obj.toJson(record));
             file.write(System.lineSeparator());
