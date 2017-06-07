@@ -32,7 +32,6 @@
             <air.main.basedir>${project.parent.basedir}</air.main.basedir>
         -->
         <dep.airlift.version>0.142</dep.airlift.version>
-        <dep.slice.version>0.28</dep.slice.version>
         <dep.packaging.version>${dep.airlift.version}</dep.packaging.version>
     </properties>
 
@@ -41,12 +40,6 @@
         <dependency>
             <groupId>com.facebook.presto</groupId>
             <artifactId>presto-spi</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.airlift</groupId>
-            <artifactId>slice</artifactId>
             <scope>provided</scope>
         </dependency>
 

@@ -28,8 +28,6 @@
 
     <properties>
         <air.main.basedir>${project.parent.basedir}</air.main.basedir>
-        <dep.airlift.version>0.142</dep.airlift.version>
-        <dep.slice.version>0.28</dep.slice.version>
         <dep.packaging.version>${dep.airlift.version}</dep.packaging.version>
     </properties>
 

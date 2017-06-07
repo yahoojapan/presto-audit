@@ -28,7 +28,7 @@ public class AuditRecord
     private Long totalRows;
 
     private String createTime;
-    private String executeStartTime;
+    private String executionStartTime;
     private String endTime;
 
     private String remoteClientAddress;
@@ -146,14 +146,14 @@ public class AuditRecord
         this.createTime = createTime;
     }
 
-    public String getExecuteStartTime()
+    public String getExecutionStartTime()
     {
-        return executeStartTime;
+        return executionStartTime;
     }
 
-    public void setExecuteStartTime(String executeStartTime)
+    public void setExecutionStartTime(String executionStartTime)
     {
-        this.executeStartTime = executeStartTime;
+        this.executionStartTime = executionStartTime;
     }
 
     public String getEndTime()

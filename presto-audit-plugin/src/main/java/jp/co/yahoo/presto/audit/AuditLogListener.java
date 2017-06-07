@@ -38,8 +38,8 @@ public class AuditLogListener
 
     public AuditLogListener(Map<String, String> requiredConfig)
     {
-        auditLogPath = requireNonNull(requiredConfig.get("event-listener.auditlog-path"), "event-listener.auditlog-path is null").toString();
-        auditLogFileName = requireNonNull(requiredConfig.get("event-listener.auditlog-filename"), "event-listener.auditlog-filename is null").toString();
+        auditLogPath = requireNonNull(requiredConfig.get("event-listener.audit-log-path"), "event-listener.audit-log-path is null");
+        auditLogFileName = requireNonNull(requiredConfig.get("event-listener.audit-log-filename"), "event-listener.audit-log-filename is null");
     }
 
     @Override
@@ -70,7 +70,7 @@ public class AuditLogListener
         record.setTotalRows(queryCompletedEvent.getStatistics().getTotalRows());
 
         record.setCreateTime(formatter.format(queryCompletedEvent.getCreateTime()));
-        record.setExecuteStartTime(formatter.format(queryCompletedEvent.getExecutionStartTime()));
+        record.setExecutionStartTime(formatter.format(queryCompletedEvent.getExecutionStartTime()));
         record.setEndTime(formatter.format(queryCompletedEvent.getEndTime()));
 
         record.setRemoteClientAddress(queryCompletedEvent.getContext().getRemoteClientAddress().orElse(""));
@@ -84,7 +84,7 @@ public class AuditLogListener
             file.write(System.lineSeparator());
         }
         catch (Exception e) {
-            log.error("Error Write EventLog to File. file path=" + auditLogPath + ", file name=" + auditLogFileName + ", EventLog: " + obj);
+            log.error("Error writing event log to file. file path=" + auditLogPath + ", file name=" + auditLogFileName + ", EventLog: " + obj);
         }
     }
 }

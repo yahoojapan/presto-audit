@@ -24,8 +24,6 @@ import static java.util.Objects.requireNonNull;
 public class AuditLogFactory
         implements EventListenerFactory
 {
-    private static final Logger log = Logger.get(AuditLogFactory.class);
-
     @Override
     public String getName()
     {
