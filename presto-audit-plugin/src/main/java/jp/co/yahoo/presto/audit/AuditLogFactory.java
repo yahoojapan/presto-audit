@@ -15,7 +15,6 @@ package jp.co.yahoo.presto.audit;
 
 import com.facebook.presto.spi.eventlistener.EventListener;
 import com.facebook.presto.spi.eventlistener.EventListenerFactory;
-import io.airlift.log.Logger;
 
 import java.util.Map;
 

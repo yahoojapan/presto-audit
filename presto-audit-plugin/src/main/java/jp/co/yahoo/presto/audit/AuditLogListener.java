@@ -51,6 +51,21 @@ public class AuditLogListener
     @Override
     public void queryCompleted(QueryCompletedEvent queryCompletedEvent)
     {
+        AuditRecord record = buildAuditRecord(queryCompletedEvent);
+
+        Gson obj = new GsonBuilder().disableHtmlEscaping().create();
+        try (FileWriter file = new FileWriter(auditLogPath + File.separator + auditLogFileName, true)) {
+            file.write(obj.toJson(record));
+            file.write(System.lineSeparator());
+        }
+        catch (Exception e) {
+            log.error("Error writing event log to file. ErrorMessage:" + e.getMessage());
+            log.error("EventLog write failed:" + obj.toJson(record));
+        }
+    }
+
+    AuditRecord buildAuditRecord(QueryCompletedEvent queryCompletedEvent)
+    {
         DateTimeFormatter formatter =
                 DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSS").withZone(ZoneId.systemDefault());
 
@@ -63,7 +78,7 @@ public class AuditLogListener
         record.setState(queryCompletedEvent.getMetadata().getQueryState());
 
         record.setCpuTime(queryCompletedEvent.getStatistics().getCpuTime().toMillis() / 1000.0);
-        record.setWallTime((queryCompletedEvent.getEndTime().toEpochMilli() - queryCompletedEvent.getExecutionStartTime().toEpochMilli()) / 1000.0);
+        record.setWallTime(queryCompletedEvent.getStatistics().getWallTime().toMillis() / 1000.0);
         record.setQueuedTime(queryCompletedEvent.getStatistics().getQueuedTime().toMillis() / 1000.0);
         record.setPeakMemoryBytes(queryCompletedEvent.getStatistics().getPeakMemoryBytes());
         record.setTotalBytes(queryCompletedEvent.getStatistics().getTotalBytes());
@@ -77,14 +92,6 @@ public class AuditLogListener
         record.setClientUser(queryCompletedEvent.getContext().getUser());
         record.setUserAgent(queryCompletedEvent.getContext().getUserAgent().orElse(""));
         record.setSource(queryCompletedEvent.getContext().getSource().orElse(""));
-
-        Gson obj = new GsonBuilder().disableHtmlEscaping().create();
-        try (FileWriter file = new FileWriter(auditLogPath + File.separator + auditLogFileName, true)) {
-            file.write(obj.toJson(record));
-            file.write(System.lineSeparator());
-        }
-        catch (Exception e) {
-            log.error("Error writing event log to file. file path=" + auditLogPath + ", file name=" + auditLogFileName + ", EventLog: " + obj);
-        }
+        return record;
     }
 }
