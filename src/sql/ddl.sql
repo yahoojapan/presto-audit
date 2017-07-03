@@ -12,7 +12,7 @@ CREATE TABLE presto_audit_1 (
   totalRows BIGINT,
 
   createTime STRING,
-  executeStartTime STRING,
+  executionStartTime STRING,
   endTime STRING,
 
   remoteClientAddress STRING,

@@ -48,7 +48,7 @@ eg.
 /etc/presto/event-listener.properties
 ```bash
 event-listener.name=presto-audit-log
-event-listener.auditlog-path=/var/log/presto/
-event-listener.auditlog-filename=presto-auditlog.log
+event-listener.audit-log-path=/var/log/presto/
+event-listener.audit-log-filename=presto-auditlog.log
 ```
 
