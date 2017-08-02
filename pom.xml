@@ -8,9 +8,9 @@
         <version>0.167</version>
     </parent>
 
-    <artifactId>presto-audit</artifactId>
+    <artifactId>presto-audit-plugin</artifactId>
     <description>Presto - Audit log</description>
-    <packaging>pom</packaging>
+    <packaging>presto-plugin</packaging>
 
     <licenses>
         <license>
@@ -36,6 +36,16 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>io.airlift</groupId>
+            <artifactId>log</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
         <!-- Presto SPI -->
         <dependency>
             <groupId>com.facebook.presto</groupId>
@@ -53,6 +63,13 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <!--  Gson: Java to Json conversion -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.2.4</version>
         </dependency>
 
         <!-- for testing -->
@@ -92,10 +109,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <modules>
-        <module>presto-audit-plugin</module>
-        <module>presto-audit-rpm</module>
-    </modules>
-
 </project>
