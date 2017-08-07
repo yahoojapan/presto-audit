@@ -1,16 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.facebook.presto</groupId>
-        <artifactId>presto-root</artifactId>
-        <version>0.167</version>
-    </parent>
-
-    <artifactId>presto-audit</artifactId>
+    <groupId>jp.co.yahoo.presto.plugin</groupId>
+    <artifactId>presto-audit-plugin</artifactId>
     <description>Presto - Audit log</description>
-    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <licenses>
         <license>
@@ -33,69 +29,187 @@
         -->
         <dep.airlift.version>0.142</dep.airlift.version>
         <dep.packaging.version>${dep.airlift.version}</dep.packaging.version>
+
+        <presto.version>0.167</presto.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <build.no>0</build.no>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>io.airlift</groupId>
+            <artifactId>log</artifactId>
+            <version>0.142</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>22.0</version>
+        </dependency>
+
         <!-- Presto SPI -->
         <dependency>
             <groupId>com.facebook.presto</groupId>
             <artifactId>presto-spi</artifactId>
+            <version>${presto.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>units</artifactId>
+            <version>1.0</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
+            <version>2.8.1</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!--  Gson: Java to Json conversion -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.2.4</version>
         </dependency>
 
         <!-- for testing -->
         <dependency>
             <groupId>com.facebook.presto</groupId>
             <artifactId>presto-main</artifactId>
+            <version>${presto.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
+            <version>3.0.0</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
+            <version>6.10</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>testing</artifactId>
+            <version>${dep.airlift.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>http-server</artifactId>
+            <version>${dep.airlift.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>node</artifactId>
+            <version>${dep.airlift.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
-    <modules>
-        <module>presto-audit-plugin</module>
-        <module>presto-audit-rpm</module>
-    </modules>
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.17</version>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <configLocation>src/checkstyle/checks.xml</configLocation>
+                            <encoding>UTF-8</encoding>
+                            <consoleOutput>true</consoleOutput>
+                            <failsOnError>true</failsOnError>
+                        </configuration>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>UTF-8</encoding>
+                    <showWarnings>true</showWarnings>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>io.takari.maven.plugins</groupId>
+                <artifactId>presto-maven-plugin</artifactId>
+                <version>0.1.12</version>
+                <extensions>true</extensions>
+            </plugin>
+            <!-- see: https://github.com/prestodb/presto/issues/7463  -->
+
+            <!-- Build rpm using the untarred artifacts BEGIN -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>rpm-maven-plugin</artifactId>
+                <version>2.1.5</version>
+
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>rpm</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <!--see: http://www.mojohaus.org/rpm-maven-plugin/ident-params.html-->
+                    <name>presto-audit-plugin</name>
+                    <version>1.0</version>
+                    <group>Applications/Databases</group>
+                    <description>Presto audit plugin Package.</description>
+                    <license>ASL 2.0</license>
+                    <release>${build.no}.el7</release>
+                    <needarch>true</needarch>
+                    <epoch>${build.no}</epoch>
+                    <url>https://git.corp.yahoo.co.jp/prestodb/presto-audit</url>
+
+                    <!--see: http://www.mojohaus.org/rpm-maven-plugin/map-params.html-->
+                    <mappings>
+                        <mapping>
+                            <directory>/usr/lib/presto/lib/plugin/yj-audit</directory>
+                            <dependency>
+                            </dependency>
+                            <artifact>
+                                <!--<excludes>-->
+                                    <!--<exclude>*.zip</exclude>-->
+                                <!--</excludes>-->
+                            </artifact>
+                        </mapping>
+                    </mappings>
+                </configuration>
+
+            </plugin>
+            <!-- Build rpm END -->
+        </plugins>
+    </build>
 </project>
