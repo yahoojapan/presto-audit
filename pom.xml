@@ -23,25 +23,18 @@
     </scm>
 
     <properties>
-        <!-- Uncomment this if you're placing this as a subdirectory of presto and you want to run their style checker.  Otherwise, you can get rid of it. -->
-        <!--
-            <air.main.basedir>${project.parent.basedir}</air.main.basedir>
-        -->
         <dep.airlift.version>0.142</dep.airlift.version>
-        <dep.packaging.version>${dep.airlift.version}</dep.packaging.version>
-
         <presto.version>0.167</presto.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <build.no>0</build.no>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>log</artifactId>
-            <version>0.142</version>
+            <version>${dep.airlift.version}</version>
         </dependency>
 
         <dependency>
@@ -167,49 +160,22 @@
             </plugin>
             <!-- see: https://github.com/prestodb/presto/issues/7463  -->
 
-            <!-- Build rpm using the untarred artifacts BEGIN -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>rpm-maven-plugin</artifactId>
-                <version>2.1.5</version>
-
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
                 <executions>
                     <execution>
+                        <phase>package</phase>
                         <goals>
-                            <goal>rpm</goal>
+                            <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>all</shadedClassifierName>
+                        </configuration>
                     </execution>
                 </executions>
-
-                <configuration>
-                    <!--see: http://www.mojohaus.org/rpm-maven-plugin/ident-params.html-->
-                    <name>presto-audit-plugin</name>
-                    <version>1.0</version>
-                    <group>Applications/Databases</group>
-                    <description>Presto audit plugin Package.</description>
-                    <license>ASL 2.0</license>
-                    <release>${build.no}.el7</release>
-                    <needarch>true</needarch>
-                    <epoch>${build.no}</epoch>
-                    <url>https://git.corp.yahoo.co.jp/prestodb/presto-audit</url>
-
-                    <!--see: http://www.mojohaus.org/rpm-maven-plugin/map-params.html-->
-                    <mappings>
-                        <mapping>
-                            <directory>/usr/lib/presto/lib/plugin/yj-audit</directory>
-                            <dependency>
-                            </dependency>
-                            <artifact>
-                                <!--<excludes>-->
-                                    <!--<exclude>*.zip</exclude>-->
-                                <!--</excludes>-->
-                            </artifact>
-                        </mapping>
-                    </mappings>
-                </configuration>
-
             </plugin>
-            <!-- Build rpm END -->
         </plugins>
     </build>
 </project>
