@@ -20,25 +20,20 @@ Plugin for Presto to save queries and metrics into files.
 * Presto 0.167 or later
 
 # Build
-## Patern 1: just build jar file, without RPM package
-```bash
-mvn -B -e clean package -Dmaven.test.skip=true -pl '!presto-audit-rpm,'
-```
 
-## Patern 2: build jar file, then RPM package
 ```bash
-mvn -B -e clean package -Dbuild.no=2
+% ./mvnw clean compile package
 ```
-
 
 # Usage
+
 ## install
+
+Copy jar file to target directory.
+
 ```bash
-sudo rpm -ivh presto-audit-plugin-0.167.1-2.el7.x86_64.rpm
-```
-## uninstall
-```bash
-sudo rpm -e presto-audit-plugin
+% export PLUGIN_VER=1.0
+% cp target/presto-audit-plugin-${PLUGIN_VER}-SNAPSHOT-all.jar /usr/lib/presto/lib/plugin/yj-audit/
 ```
 
 ## run
