@@ -16,12 +16,6 @@
         </license>
     </licenses>
 
-    <scm>
-        <connection>scm:git:git@github.com:zz22394/presto-audit.git</connection>
-        <url>https://github.com/zz22394/presto-audit.git</url>
-        <tag>0.167</tag>
-    </scm>
-
     <properties>
         <dep.airlift.version>0.142</dep.airlift.version>
         <presto.version>0.167</presto.version>
