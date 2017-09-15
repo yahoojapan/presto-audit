@@ -17,9 +17,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:zz22394/presto-audit.git</connection>
-        <url>https://github.com/zz22394/presto-audit.git</url>
-        <tag>0.167</tag>
+        <connection>scm:git:git://github.com/yahoojapan/presto-audit.git</connection>
+        <url>https://github.com/yahoojapan/presto-audit</url>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
@@ -163,6 +163,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
