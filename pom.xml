@@ -16,6 +16,12 @@
         </license>
     </licenses>
 
+    <scm>
+        <connection>scm:git:git://github.com/yahoojapan/presto-audit.git</connection>
+        <url>https://github.com/yahoojapan/presto-audit</url>
+        <tag>HEAD</tag>
+    </scm>
+
     <properties>
         <dep.airlift.version>0.142</dep.airlift.version>
         <presto.version>0.167</presto.version>
