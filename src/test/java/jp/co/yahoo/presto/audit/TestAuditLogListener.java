@@ -24,6 +24,7 @@ import com.facebook.presto.spi.eventlistener.QueryMetadata;
 import com.facebook.presto.spi.eventlistener.QueryStatistics;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URI;
@@ -41,18 +42,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Test(singleThreaded = true)
 public class TestAuditLogListener
 {
-    @Test
-    public void testBuildAuditRecord()
-            throws URISyntaxException
+    private URI uri;
+    private QueryStatistics statistics;
+    private QueryContext context;
+    private QueryIOMetadata ioMetadata;
+    private Instant createTime;
+    private Instant executionStartTime;
+    private Instant endTime;
+    private AuditLogListener listener;
+    private Gson gson;
+
+    @BeforeClass
+    public void setUp()
+            throws Exception
     {
-        URI uri = new URI("http://example.com:8080/v1/query/20170521_140224_00002_gd5k3");
-        QueryMetadata metadata = new QueryMetadata("20170606_044544_00024_nfhe3",
-                Optional.of("4c52973c-14c6-4534-837f-238e21d9b061"),
-                "select * from airdelays_s3_csv WHERE kw = 'presto-kw-example' limit 5",
-                "FINISHED",
-                uri,
-                Optional.empty());
-        QueryStatistics statistics = new QueryStatistics(Duration.ofMillis(100),
+        uri = new URI("http://example.com:8080/v1/query/20170521_140224_00002_gd5k3");
+        statistics = new QueryStatistics(Duration.ofMillis(100),
                 Duration.ofMillis(200),
                 Duration.ofMillis(300),
                 Optional.of(Duration.ofMillis(400)),
@@ -63,7 +68,7 @@ public class TestAuditLogListener
                 14,
                 true,
                 "operatorSummaries 01");
-        QueryContext context = new QueryContext("test-user",
+        context = new QueryContext("test-user",
                 Optional.of("principal"),
                 Optional.of("example.com"),
                 Optional.of("StatementClient 0.167"),
@@ -75,11 +80,29 @@ public class TestAuditLogListener
                 "127.0.0.1",
                 "0.167t",
                 "environment");
-        QueryIOMetadata ioMetadata = new QueryIOMetadata(new ArrayList<QueryInputMetadata>(),
+        ioMetadata = new QueryIOMetadata(new ArrayList<QueryInputMetadata>(),
                 Optional.empty());
-        Instant createTime = Instant.ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 0).getTimeInMillis());
-        Instant executionStartTime = Instant.ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 1).getTimeInMillis());
-        Instant endTime = Instant.ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 3).getTimeInMillis());
+        createTime = Instant.ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 0).getTimeInMillis());
+        executionStartTime = Instant.ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 1).getTimeInMillis());
+        endTime = Instant.ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 3).getTimeInMillis());
+
+        Map<String, String> requiredConfig = new HashMap<String, String>();
+        requiredConfig.put("event-listener.audit-log-path", "/test/path");
+        requiredConfig.put("event-listener.audit-log-filename", "test-filename.log");
+        listener = new AuditLogListener(requiredConfig);
+        gson = new GsonBuilder().disableHtmlEscaping().create();
+    }
+
+    @Test
+    public void testBuildAuditRecordNormal()
+            throws URISyntaxException
+    {
+        QueryMetadata metadata = new QueryMetadata("20170606_044544_00024_nfhe3",
+                Optional.of("4c52973c-14c6-4534-837f-238e21d9b061"),
+                "select * from airdelays_s3_csv WHERE kw = 'presto-kw-example' limit 5",
+                "FINISHED",
+                uri,
+                Optional.empty());
         QueryCompletedEvent queryCompletedEvent = new QueryCompletedEvent(metadata,
                 statistics,
                 context,
@@ -89,19 +112,17 @@ public class TestAuditLogListener
                 executionStartTime,
                 endTime);
 
-        Map<String, String> requiredConfig = new HashMap<String, String>();
-        requiredConfig.put("event-listener.audit-log-path", "/test/path");
-        requiredConfig.put("event-listener.audit-log-filename", "test-filename.log");
-        AuditLogListener listener = new AuditLogListener(requiredConfig);
         AuditRecord record = listener.buildAuditRecord(queryCompletedEvent);
-        Gson obj = new GsonBuilder().disableHtmlEscaping().create();
 
-        // Normal
-        String expected_normal = "{\"queryId\":\"20170606_044544_00024_nfhe3\",\"query\":\"select * from airdelays_s3_csv WHERE kw = 'presto-kw-example' limit 5\",\"uri\":\"http://example.com:8080/v1/query/20170521_140224_00002_gd5k3\",\"state\":\"FINISHED\",\"cpuTime\":0.1,\"wallTime\":0.2,\"queuedTime\":0.3,\"peakMemoryBytes\":10001,\"totalBytes\":10002,\"totalRows\":10003,\"completedSplits\":14,\"createTime\":\"20170715100000.000\",\"executionStartTime\":\"20170715100001.000\",\"endTime\":\"20170715100003.000\",\"remoteClientAddress\":\"example.com\",\"clientUser\":\"test-user\",\"userAgent\":\"StatementClient 0.167\",\"source\":\"presto-cli\"}";
-        assertThat(obj.toJson(record)).isEqualTo(expected_normal);
+        String expected_normal = "{\"queryId\":\"20170606_044544_00024_nfhe3\",\"query\":\"select * from airdelays_s3_csv WHERE kw = 'presto-kw-example' limit 5\",\"uri\":\"http://example.com:8080/v1/query/20170521_140224_00002_gd5k3\",\"state\":\"FINISHED\",\"cpuTime\":0.1,\"wallTime\":0.2,\"queuedTime\":0.3,\"peakMemoryBytes\":10001,\"totalBytes\":10002,\"totalRows\":10003,\"completedSplits\":14,\"createTime\":\"20170715100000.000\",\"executionStartTime\":\"20170715100001.000\",\"endTime\":\"20170715100003.000\",\"errorCode\":0,\"remoteClientAddress\":\"example.com\",\"clientUser\":\"test-user\",\"userAgent\":\"StatementClient 0.167\",\"source\":\"presto-cli\"}";
+        assertThat(gson.toJson(record)).isEqualTo(expected_normal);
+    }
 
-        // Failure
-        metadata = new QueryMetadata("20170606_044544_00024_nfhe3",
+    @Test
+    public void testBuildAuditRecordFailure()
+            throws URISyntaxException
+    {
+        QueryMetadata metadata = new QueryMetadata("20170606_044544_00024_nfhe3",
                 Optional.of("4c52973c-14c6-4534-837f-238e21d9b061"),
                 "select 2a",
                 "FAILED",
@@ -115,7 +136,7 @@ public class TestAuditLogListener
                 Optional.empty(),
                 "{json-error}"
         );
-        queryCompletedEvent = new QueryCompletedEvent(metadata,
+        QueryCompletedEvent queryCompletedEvent = new QueryCompletedEvent(metadata,
                 statistics,
                 context,
                 ioMetadata,
@@ -123,8 +144,9 @@ public class TestAuditLogListener
                 createTime,
                 executionStartTime,
                 endTime);
-        record = listener.buildAuditRecord(queryCompletedEvent);
-        String expected_failure = "{\"queryId\":\"20170606_044544_00024_nfhe3\",\"query\":\"select 2a\",\"uri\":\"http://example.com:8080/v1/query/20170521_140224_00002_gd5k3\",\"state\":\"FAILED\",\"cpuTime\":0.1,\"wallTime\":0.2,\"queuedTime\":0.3,\"peakMemoryBytes\":10001,\"totalBytes\":10002,\"totalRows\":10003,\"completedSplits\":14,\"createTime\":\"20170715100000.000\",\"executionStartTime\":\"20170715100001.000\",\"endTime\":\"20170715100003.000\",\"errorCode\":\"SYNTAX_ERROR:1\",\"failureType\":\"com.facebook.presto.sql.parser.ParsingException\",\"failureMessage\":\"line 1:15: mismatched input '0' expecting ')'\",\"failuresJson\":\"{json-error}\",\"remoteClientAddress\":\"example.com\",\"clientUser\":\"test-user\",\"userAgent\":\"StatementClient 0.167\",\"source\":\"presto-cli\"}";
-        assertThat(obj.toJson(record)).isEqualTo(expected_failure);
+
+        AuditRecord record = listener.buildAuditRecord(queryCompletedEvent);
+        String expected_failure = "{\"queryId\":\"20170606_044544_00024_nfhe3\",\"query\":\"select 2a\",\"uri\":\"http://example.com:8080/v1/query/20170521_140224_00002_gd5k3\",\"state\":\"FAILED\",\"cpuTime\":0.1,\"wallTime\":0.2,\"queuedTime\":0.3,\"peakMemoryBytes\":10001,\"totalBytes\":10002,\"totalRows\":10003,\"completedSplits\":14,\"createTime\":\"20170715100000.000\",\"executionStartTime\":\"20170715100001.000\",\"endTime\":\"20170715100003.000\",\"errorCode\":1,\"errorName\":\"SYNTAX_ERROR\",\"failureType\":\"com.facebook.presto.sql.parser.ParsingException\",\"failureMessage\":\"line 1:15: mismatched input '0' expecting ')'\",\"failuresJson\":\"{json-error}\",\"remoteClientAddress\":\"example.com\",\"clientUser\":\"test-user\",\"userAgent\":\"StatementClient 0.167\",\"source\":\"presto-cli\"}";
+        assertThat(gson.toJson(record)).isEqualTo(expected_failure);
     }
 }

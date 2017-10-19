@@ -67,8 +67,7 @@ public class AuditLogListener
 
     AuditRecord buildAuditRecord(QueryCompletedEvent queryCompletedEvent)
     {
-        DateTimeFormatter formatter =
-                DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSS").withZone(ZoneId.systemDefault());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSS").withZone(ZoneId.systemDefault());
 
         AuditRecord record = new AuditRecord();
         record.setQueryId(queryCompletedEvent.getMetadata().getQueryId());
