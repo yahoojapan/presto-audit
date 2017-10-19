@@ -10,10 +10,17 @@ CREATE TABLE presto_audit_1 (
   peakMemoryBytes BIGINT,
   totalBytes BIGINT,
   totalRows BIGINT,
+  completedSplits INTEGER,
 
   createTime STRING,
   executionStartTime STRING,
   endTime STRING,
+
+  errorCode INTEGER,
+  errorName STRING,
+  failureType STRING,
+  failureMessage STRING,
+  failuresJson STRING,
 
   remoteClientAddress STRING,
   clientUser STRING,
