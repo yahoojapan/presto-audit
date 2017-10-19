@@ -5,7 +5,7 @@
     <groupId>jp.co.yahoo.presto.plugin</groupId>
     <artifactId>presto-audit-plugin</artifactId>
     <description>Presto - Audit log</description>
-    <version>1.2</version>
+    <version>1.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <licenses>
@@ -19,7 +19,7 @@
     <scm>
         <connection>scm:git:git://github.com/yahoojapan/presto-audit.git</connection>
         <url>https://github.com/yahoojapan/presto-audit</url>
-        <tag>1.2</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
