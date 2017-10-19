@@ -16,6 +16,8 @@
 # Presto Query Audit Log(log history)
 Plugin for Presto to save queries and metrics into files.  
 
+[![Build Status](https://travis-ci.org/yahoojapan/presto-audit.svg?branch=master)](https://travis-ci.org/yahoojapan/presto-audit)
+
 ## Requirement
 * Presto 0.167 or later
 
