@@ -93,7 +93,8 @@ public class AuditLogListener
         // Error information
         if (queryCompletedEvent.getFailureInfo().isPresent()) {
             QueryFailureInfo failureInfo = queryCompletedEvent.getFailureInfo().get();
-            record.setErrorCode(failureInfo.getErrorCode().toString());
+            record.setErrorCode(failureInfo.getErrorCode().getCode());
+            record.setErrorName(failureInfo.getErrorCode().getName());
             if (failureInfo.getFailureType().isPresent()) {
                 record.setFailureType(failureInfo.getFailureType().get());
             }

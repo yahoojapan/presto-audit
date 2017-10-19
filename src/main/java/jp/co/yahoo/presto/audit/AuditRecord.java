@@ -32,7 +32,8 @@ public class AuditRecord
     private String executionStartTime;
     private String endTime;
 
-    private String errorCode;
+    private int errorCode;
+    private String errorName;
     private String failureType;
     private String failureMessage;
     private String failuresJson;
@@ -152,14 +153,24 @@ public class AuditRecord
         this.completedSplits = completedSplits;
     }
 
-    public String getErrorCode()
+    public int getErrorCode()
     {
         return errorCode;
     }
 
-    public void setErrorCode(String errorCode)
+    public void setErrorCode(int errorCode)
     {
         this.errorCode = errorCode;
+    }
+
+    public String getErrorName()
+    {
+        return errorName;
+    }
+
+    public void setErrorName(String errorName)
+    {
+        this.errorName = errorName;
     }
 
     public String getFailureType()
