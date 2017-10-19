@@ -16,6 +16,7 @@ package jp.co.yahoo.presto.audit;
 import com.facebook.presto.spi.eventlistener.EventListener;
 import com.facebook.presto.spi.eventlistener.QueryCompletedEvent;
 import com.facebook.presto.spi.eventlistener.QueryCreatedEvent;
+import com.facebook.presto.spi.eventlistener.QueryFailureInfo;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.airlift.log.Logger;
@@ -66,8 +67,7 @@ public class AuditLogListener
 
     AuditRecord buildAuditRecord(QueryCompletedEvent queryCompletedEvent)
     {
-        DateTimeFormatter formatter =
-                DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSS").withZone(ZoneId.systemDefault());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSS").withZone(ZoneId.systemDefault());
 
         AuditRecord record = new AuditRecord();
         record.setQueryId(queryCompletedEvent.getMetadata().getQueryId());
@@ -83,10 +83,25 @@ public class AuditLogListener
         record.setPeakMemoryBytes(queryCompletedEvent.getStatistics().getPeakMemoryBytes());
         record.setTotalBytes(queryCompletedEvent.getStatistics().getTotalBytes());
         record.setTotalRows(queryCompletedEvent.getStatistics().getTotalRows());
+        record.setCompletedSplits(queryCompletedEvent.getStatistics().getCompletedSplits());
 
         record.setCreateTime(formatter.format(queryCompletedEvent.getCreateTime()));
         record.setExecutionStartTime(formatter.format(queryCompletedEvent.getExecutionStartTime()));
         record.setEndTime(formatter.format(queryCompletedEvent.getEndTime()));
+
+        // Error information
+        if (queryCompletedEvent.getFailureInfo().isPresent()) {
+            QueryFailureInfo failureInfo = queryCompletedEvent.getFailureInfo().get();
+            record.setErrorCode(failureInfo.getErrorCode().getCode());
+            record.setErrorName(failureInfo.getErrorCode().getName());
+            if (failureInfo.getFailureType().isPresent()) {
+                record.setFailureType(failureInfo.getFailureType().get());
+            }
+            if (failureInfo.getFailureMessage().isPresent()) {
+                record.setFailureMessage(failureInfo.getFailureMessage().get());
+            }
+            record.setFailuresJson(failureInfo.getFailuresJson());
+        }
 
         record.setRemoteClientAddress(queryCompletedEvent.getContext().getRemoteClientAddress().orElse(""));
         record.setClientUser(queryCompletedEvent.getContext().getUser());

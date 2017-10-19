@@ -26,10 +26,17 @@ public class AuditRecord
     private Long peakMemoryBytes;
     private Long totalBytes;
     private Long totalRows;
+    private int completedSplits;
 
     private String createTime;
     private String executionStartTime;
     private String endTime;
+
+    private int errorCode;
+    private String errorName;
+    private String failureType;
+    private String failureMessage;
+    private String failuresJson;
 
     private String remoteClientAddress;
     private String clientUser;
@@ -134,6 +141,66 @@ public class AuditRecord
     public void setTotalRows(Long totalRows)
     {
         this.totalRows = totalRows;
+    }
+
+    public int getCompletedSplits()
+    {
+        return completedSplits;
+    }
+
+    public void setCompletedSplits(int completedSplits)
+    {
+        this.completedSplits = completedSplits;
+    }
+
+    public int getErrorCode()
+    {
+        return errorCode;
+    }
+
+    public void setErrorCode(int errorCode)
+    {
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorName()
+    {
+        return errorName;
+    }
+
+    public void setErrorName(String errorName)
+    {
+        this.errorName = errorName;
+    }
+
+    public String getFailureType()
+    {
+        return failureType;
+    }
+
+    public void setFailureType(String failureType)
+    {
+        this.failureType = failureType;
+    }
+
+    public String getFailureMessage()
+    {
+        return failureMessage;
+    }
+
+    public void setFailureMessage(String failureMessage)
+    {
+        this.failureMessage = failureMessage;
+    }
+
+    public String getFailuresJson()
+    {
+        return failuresJson;
+    }
+
+    public void setFailuresJson(String failuresJson)
+    {
+        this.failuresJson = failuresJson;
     }
 
     public String getCreateTime()
