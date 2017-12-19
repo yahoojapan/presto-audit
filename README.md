@@ -49,3 +49,8 @@ event-listener.audit-log-path=/var/log/presto/
 event-listener.audit-log-filename=presto-auditlog.log
 ```
 
+## Analyze SQL samples
+Table DDL can be found in src/sql/ddl.sql
+```sql
+SELECT date_parse(executionStartTime, '%Y%m%d%H%i%S.%f') AS EXEC_START, state, date_diff('millisecond', date_parse(executionStartTime, '%Y%m%d%H%i%S.%f'), date_parse(endTime, '%Y%m%d%H%i%S.%f')) AS PRESTO_EXEC_TIME_MS FROM sso_test.presto_audit_pnix WHERE ymd = '20170912' AND createTime > '20170912233000.572' ORDER BY createTime;
+```
