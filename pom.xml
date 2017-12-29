@@ -28,6 +28,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <build.no>0</build.no>
     </properties>
 
     <dependencies>
@@ -192,6 +193,44 @@
                     <tagNameFormat>@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
+
+            <!-- Build rpm using the untarred artifacts BEGIN -->
+            <!--
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>rpm-maven-plugin</artifactId>
+                <version>2.1.5</version>
+
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>rpm</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <name>presto-audit-plugin</name>
+                    <version>1.3</version>
+                    <group>Applications/Databases</group>
+                    <description>Presto audit plugin Package.</description>
+                    <license>ASL 2.0</license>
+                    <release>${build.no}.el7</release>
+                    <needarch>true</needarch>
+                    <epoch>${build.no}</epoch>
+                    <url>https://github.com/yahoojapan/presto-audit</url>
+                    <mappings>
+                        <mapping>
+                            <directory>/usr/lib/presto/lib/plugin/yj-audit</directory>
+                            <dependency>
+                            </dependency>
+                            <artifact>
+                            </artifact>
+                        </mapping>
+                    </mappings>
+                </configuration>
+            </plugin>
+            -->
         </plugins>
     </build>
 </project>
