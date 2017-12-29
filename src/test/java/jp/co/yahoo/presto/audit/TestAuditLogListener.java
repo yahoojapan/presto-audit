@@ -13,8 +13,6 @@
  */
 package jp.co.yahoo.presto.audit;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.facebook.presto.spi.ErrorCode;
 import com.facebook.presto.spi.ErrorType;
 import com.facebook.presto.spi.eventlistener.QueryCompletedEvent;
@@ -24,8 +22,12 @@ import com.facebook.presto.spi.eventlistener.QueryIOMetadata;
 import com.facebook.presto.spi.eventlistener.QueryInputMetadata;
 import com.facebook.presto.spi.eventlistener.QueryMetadata;
 import com.facebook.presto.spi.eventlistener.QueryStatistics;
+import com.facebook.presto.spi.eventlistener.StageCpuDistribution;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
@@ -35,12 +37,13 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Test(singleThreaded = true)
 public class TestAuditLogListener
 {
+
     private URI uri;
     private QueryStatistics statistics;
     private QueryContext context;
@@ -59,14 +62,25 @@ public class TestAuditLogListener
         statistics = new QueryStatistics(Duration.ofMillis(100),
                 Duration.ofMillis(200),
                 Duration.ofMillis(300),
-                Optional.of(Duration.ofMillis(400)),
-                Optional.of(Duration.ofMillis(500)),
+                (Optional<Duration>) Optional.of(Duration.ofMillis(400)),
+                (Optional<Duration>) Optional.of(Duration.ofMillis(500)),
                 10001,
                 10002,
                 10003,
                 14,
+                0,
+                0, 0,
+                2048.0,
+                4096,
                 true,
-                "operatorSummaries 01");
+                new ArrayList<StageCpuDistribution>()
+                {
+                },
+                new ArrayList<String>()
+                {{
+                    add("operatorSummaries 01");
+                }}
+        );
         context = new QueryContext(
             "test-user",
             (Optional<String>) Optional.of("principal"),
@@ -83,9 +97,12 @@ public class TestAuditLogListener
             "environment");
         ioMetadata = new QueryIOMetadata(new ArrayList<QueryInputMetadata>(),
                 Optional.empty());
-        createTime = Instant.ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 0).getTimeInMillis());
-        executionStartTime = Instant.ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 1).getTimeInMillis());
-        endTime = Instant.ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 3).getTimeInMillis());
+        createTime = Instant
+                .ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 0).getTimeInMillis());
+        executionStartTime = Instant
+                .ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 1).getTimeInMillis());
+        endTime = Instant
+                .ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 3).getTimeInMillis());
 
         Map<String, String> requiredConfig = new HashMap<String, String>();
         requiredConfig.put("event-listener.audit-log-path", "/test/path");
@@ -103,6 +120,7 @@ public class TestAuditLogListener
                 "select * from airdelays_s3_csv WHERE kw = 'presto-kw-example' limit 5",
                 "FINISHED",
                 uri,
+                Optional.empty(),
                 Optional.empty());
         QueryCompletedEvent queryCompletedEvent = new QueryCompletedEvent(metadata,
                 statistics,
@@ -128,6 +146,7 @@ public class TestAuditLogListener
                 "select 2a",
                 "FAILED",
                 uri,
+                Optional.empty(),
                 Optional.empty());
         ErrorCode errorCode = new ErrorCode(1, "SYNTAX_ERROR", ErrorType.USER_ERROR);
         QueryFailureInfo failureInfo = new QueryFailureInfo(errorCode,
