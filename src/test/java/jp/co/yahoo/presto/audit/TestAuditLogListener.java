@@ -13,6 +13,8 @@
  */
 package jp.co.yahoo.presto.audit;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.facebook.presto.spi.ErrorCode;
 import com.facebook.presto.spi.ErrorType;
 import com.facebook.presto.spi.eventlistener.QueryCompletedEvent;
@@ -24,9 +26,6 @@ import com.facebook.presto.spi.eventlistener.QueryMetadata;
 import com.facebook.presto.spi.eventlistener.QueryStatistics;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
@@ -36,8 +35,8 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 @Test(singleThreaded = true)
 public class TestAuditLogListener
@@ -68,18 +67,20 @@ public class TestAuditLogListener
                 14,
                 true,
                 "operatorSummaries 01");
-        context = new QueryContext("test-user",
-                Optional.of("principal"),
-                Optional.of("example.com"),
-                Optional.of("StatementClient 0.167"),
-                Optional.of("clientInfo"),
-                Optional.of("presto-cli"),
-                Optional.of("catalog"),
-                Optional.of("schema"),
-                new HashMap<String, String>(),
-                "127.0.0.1",
-                "0.167t",
-                "environment");
+        context = new QueryContext(
+            "test-user",
+            (Optional<String>) Optional.of("principal"),
+            (Optional<String>) Optional.of("example.com"),
+            (Optional<String>) Optional.of("StatementClient 0.167"),
+            (Optional<String>) Optional.of("clientInfo"),
+            (Optional<String>) Optional.of("presto-cli"),
+            (Optional<String>) Optional.of("catalog"),
+            (Optional<String>) Optional.of("schema"),
+            (Optional<String>) Optional.of(""),
+            new HashMap<String, String>(),
+            "127.0.0.1",
+            "0.175",
+            "environment");
         ioMetadata = new QueryIOMetadata(new ArrayList<QueryInputMetadata>(),
                 Optional.empty());
         createTime = Instant.ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 0).getTimeInMillis());
