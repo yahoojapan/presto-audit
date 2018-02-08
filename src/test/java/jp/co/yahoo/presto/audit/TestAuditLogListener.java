@@ -43,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Test(singleThreaded = true)
 public class TestAuditLogListener
 {
-
     private URI uri;
     private QueryStatistics statistics;
     private QueryContext context;
@@ -73,36 +72,31 @@ public class TestAuditLogListener
                 2048.0,
                 4096,
                 true,
-                new ArrayList<StageCpuDistribution>()
-                {
-                },
+                new ArrayList<StageCpuDistribution>() {},
                 new ArrayList<String>()
                 {{
                     add("operatorSummaries 01");
                 }}
         );
         context = new QueryContext(
-            "test-user",
-            (Optional<String>) Optional.of("principal"),
-            (Optional<String>) Optional.of("example.com"),
-            (Optional<String>) Optional.of("StatementClient 0.167"),
-            (Optional<String>) Optional.of("clientInfo"),
-            (Optional<String>) Optional.of("presto-cli"),
-            (Optional<String>) Optional.of("catalog"),
-            (Optional<String>) Optional.of("schema"),
-            (Optional<String>) Optional.of(""),
-            new HashMap<String, String>(),
-            "127.0.0.1",
-            "0.175",
-            "environment");
+                "test-user",
+                (Optional<String>) Optional.of("principal"),
+                (Optional<String>) Optional.of("example.com"),
+                (Optional<String>) Optional.of("StatementClient 0.167"),
+                (Optional<String>) Optional.of("clientInfo"),
+                (Optional<String>) Optional.of("presto-cli"),
+                (Optional<String>) Optional.of("catalog"),
+                (Optional<String>) Optional.of("schema"),
+                (Optional<String>) Optional.of(""),
+                new HashMap<String, String>(),
+                "127.0.0.1",
+                "0.175",
+                "environment");
         ioMetadata = new QueryIOMetadata(new ArrayList<QueryInputMetadata>(),
                 Optional.empty());
-        createTime = Instant
-                .ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 0).getTimeInMillis());
-        executionStartTime = Instant
-                .ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 1).getTimeInMillis());
-        endTime = Instant
-                .ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 3).getTimeInMillis());
+        createTime = Instant.ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 0).getTimeInMillis());
+        executionStartTime = Instant.ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 1).getTimeInMillis());
+        endTime = Instant.ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 3).getTimeInMillis());
 
         Map<String, String> requiredConfig = new HashMap<String, String>();
         requiredConfig.put("event-listener.audit-log-path", "/test/path");
@@ -133,8 +127,21 @@ public class TestAuditLogListener
 
         AuditRecord record = listener.buildAuditRecord(queryCompletedEvent);
 
-        String expected_normal = "{\"queryId\":\"20170606_044544_00024_nfhe3\",\"query\":\"select * from airdelays_s3_csv WHERE kw = 'presto-kw-example' limit 5\",\"uri\":\"http://example.com:8080/v1/query/20170521_140224_00002_gd5k3\",\"state\":\"FINISHED\",\"cpuTime\":0.1,\"wallTime\":0.2,\"queuedTime\":0.3,\"peakMemoryBytes\":10001,\"totalBytes\":10002,\"totalRows\":10003,\"completedSplits\":14,\"createTime\":\"20170715100000.000\",\"executionStartTime\":\"20170715100001.000\",\"endTime\":\"20170715100003.000\",\"errorCode\":0,\"remoteClientAddress\":\"example.com\",\"clientUser\":\"test-user\",\"userAgent\":\"StatementClient 0.167\",\"source\":\"presto-cli\"}";
-        assertThat(gson.toJson(record)).isEqualTo(expected_normal);
+        assertThat(gson.toJson(record))
+                .contains("\"queryId\":\"20170606_044544_00024_nfhe3\"")
+                .contains("\"query\":\"select * from airdelays_s3_csv WHERE kw = 'presto-kw-example' limit 5\"")
+                .contains("\"userAgent\":\"StatementClient 0.167\"")
+                .contains("\"source\":\"presto-cli\"}")
+                .contains("\"errorCode\":0")
+                .contains("\"createTime\":\"20170715100000.000\"")
+                .contains("\"executionStartTime\":\"20170715100001.000\"")
+                .contains("\"endTime\":\"20170715100003.000\"")
+                .contains("\"createTimestamp\":1.5000804E9")
+                .contains("\"executionStartTimestamp\":1.500080401E9")
+                .contains("\"endTimestamp\":1.500080403E9")
+                .doesNotContain("\"failureMessage\"")
+                .doesNotContain("\"errorName\"")
+        ;
     }
 
     @Test
@@ -166,7 +173,10 @@ public class TestAuditLogListener
                 endTime);
 
         AuditRecord record = listener.buildAuditRecord(queryCompletedEvent);
-        String expected_failure = "{\"queryId\":\"20170606_044544_00024_nfhe3\",\"query\":\"select 2a\",\"uri\":\"http://example.com:8080/v1/query/20170521_140224_00002_gd5k3\",\"state\":\"FAILED\",\"cpuTime\":0.1,\"wallTime\":0.2,\"queuedTime\":0.3,\"peakMemoryBytes\":10001,\"totalBytes\":10002,\"totalRows\":10003,\"completedSplits\":14,\"createTime\":\"20170715100000.000\",\"executionStartTime\":\"20170715100001.000\",\"endTime\":\"20170715100003.000\",\"errorCode\":1,\"errorName\":\"SYNTAX_ERROR\",\"failureType\":\"com.facebook.presto.sql.parser.ParsingException\",\"failureMessage\":\"line 1:15: mismatched input '0' expecting ')'\",\"failuresJson\":\"{json-error}\",\"remoteClientAddress\":\"example.com\",\"clientUser\":\"test-user\",\"userAgent\":\"StatementClient 0.167\",\"source\":\"presto-cli\"}";
-        assertThat(gson.toJson(record)).isEqualTo(expected_failure);
+        assertThat(gson.toJson(record))
+                .contains("\"errorCode\":1")
+                .contains("\"errorName\":\"SYNTAX_ERROR\"")
+                .contains("\"failureMessage\":\"line 1:15: mismatched input '0' expecting ')'\"")
+                .contains("\"failureType\":\"com.facebook.presto.sql.parser.ParsingException\"");
     }
 }
