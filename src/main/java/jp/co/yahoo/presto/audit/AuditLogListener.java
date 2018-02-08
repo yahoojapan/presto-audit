@@ -89,6 +89,10 @@ public class AuditLogListener
         record.setExecutionStartTime(formatter.format(queryCompletedEvent.getExecutionStartTime()));
         record.setEndTime(formatter.format(queryCompletedEvent.getEndTime()));
 
+        record.setCreateTimestamp(queryCompletedEvent.getCreateTime().toEpochMilli() / 1000.0);
+        record.setExecutionStartTimestamp(queryCompletedEvent.getExecutionStartTime().toEpochMilli() / 1000.0);
+        record.setEndTimestamp(queryCompletedEvent.getEndTime().toEpochMilli() / 1000.0);
+
         // Error information
         if (queryCompletedEvent.getFailureInfo().isPresent()) {
             QueryFailureInfo failureInfo = queryCompletedEvent.getFailureInfo().get();

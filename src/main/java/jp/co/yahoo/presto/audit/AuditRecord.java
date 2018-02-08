@@ -28,9 +28,13 @@ public class AuditRecord
     private Long totalRows;
     private int completedSplits;
 
-    private String createTime;
-    private String executionStartTime;
-    private String endTime;
+    @Deprecated private String createTime;
+    @Deprecated private String executionStartTime;
+    @Deprecated private String endTime;
+
+    private Double createTimestamp;
+    private Double executionStartTimestamp;
+    private Double endTimestamp;
 
     private int errorCode;
     private String errorName;
@@ -271,5 +275,35 @@ public class AuditRecord
     public void setSource(String source)
     {
         this.source = source;
+    }
+
+    public Double getCreateTimestamp()
+    {
+        return createTimestamp;
+    }
+
+    public void setCreateTimestamp(Double createTimestamp)
+    {
+        this.createTimestamp = createTimestamp;
+    }
+
+    public Double getExecutionStartTimestamp()
+    {
+        return executionStartTimestamp;
+    }
+
+    public void setExecutionStartTimestamp(Double executionStartTimestamp)
+    {
+        this.executionStartTimestamp = executionStartTimestamp;
+    }
+
+    public Double getEndTimestamp()
+    {
+        return endTimestamp;
+    }
+
+    public void setEndTimestamp(Double endTimestamp)
+    {
+        this.endTimestamp = endTimestamp;
     }
 }
