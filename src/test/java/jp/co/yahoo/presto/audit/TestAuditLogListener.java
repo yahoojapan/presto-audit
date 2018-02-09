@@ -32,8 +32,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -94,9 +95,10 @@ public class TestAuditLogListener
                 "environment");
         ioMetadata = new QueryIOMetadata(new ArrayList<QueryInputMetadata>(),
                 Optional.empty());
-        createTime = Instant.ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 0).getTimeInMillis());
-        executionStartTime = Instant.ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 1).getTimeInMillis());
-        endTime = Instant.ofEpochMilli(new GregorianCalendar(2017, 6, 15, 10, 0, 3).getTimeInMillis());
+        ZoneId jst_zone = ZoneId.of("Asia/Tokyo");
+        createTime = ZonedDateTime.of(2017, 6 + 1, 15, 10, 0, 0, 0, jst_zone).toInstant();
+        executionStartTime = ZonedDateTime.of(2017, 6 + 1, 15, 10, 0, 1, 0, jst_zone).toInstant();
+        endTime = ZonedDateTime.of(2017, 6 + 1, 15, 10, 0, 3, 0, jst_zone).toInstant();
 
         Map<String, String> requiredConfig = new HashMap<String, String>();
         requiredConfig.put("event-listener.audit-log-path", "/test/path");
