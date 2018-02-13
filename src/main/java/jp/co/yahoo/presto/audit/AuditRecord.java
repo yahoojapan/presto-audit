@@ -15,6 +15,8 @@ package jp.co.yahoo.presto.audit;
 
 public class AuditRecord
 {
+    private String eventType;
+
     private String queryId;
     private String query;
     private String uri;
@@ -46,6 +48,16 @@ public class AuditRecord
     private String clientUser;
     private String userAgent;
     private String source;
+
+    public String getEventType()
+    {
+        return eventType;
+    }
+
+    public void setEventType(String eventType)
+    {
+        this.eventType = eventType;
+    }
 
     public String getQueryId()
     {

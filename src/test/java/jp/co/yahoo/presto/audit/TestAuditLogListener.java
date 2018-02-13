@@ -141,6 +141,7 @@ public class TestAuditLogListener
                 .contains("\"createTimestamp\":1.5000804E9")
                 .contains("\"executionStartTimestamp\":1.500080401E9")
                 .contains("\"endTimestamp\":1.500080403E9")
+                .contains("\"eventType\":\"QueryCompletedEvent\"")
                 .doesNotContain("\"failureMessage\"")
                 .doesNotContain("\"errorName\"")
         ;
