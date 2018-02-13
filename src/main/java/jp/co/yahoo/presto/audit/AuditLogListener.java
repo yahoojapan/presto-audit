@@ -65,37 +65,37 @@ public class AuditLogListener
         }
     }
 
-    AuditRecord buildAuditRecord(QueryCompletedEvent queryCompletedEvent)
+    AuditRecord buildAuditRecord(QueryCompletedEvent event)
     {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSS").withZone(ZoneId.systemDefault());
 
         AuditRecord record = new AuditRecord();
-        record.setQueryId(queryCompletedEvent.getMetadata().getQueryId());
+        record.setQueryId(event.getMetadata().getQueryId());
 
         //SQL Query Text
-        record.setQuery(queryCompletedEvent.getMetadata().getQuery());
-        record.setUri(queryCompletedEvent.getMetadata().getUri().toString());
-        record.setState(queryCompletedEvent.getMetadata().getQueryState());
+        record.setQuery(event.getMetadata().getQuery());
+        record.setUri(event.getMetadata().getUri().toString());
+        record.setState(event.getMetadata().getQueryState());
 
-        record.setCpuTime(queryCompletedEvent.getStatistics().getCpuTime().toMillis() / 1000.0);
-        record.setWallTime(queryCompletedEvent.getStatistics().getWallTime().toMillis() / 1000.0);
-        record.setQueuedTime(queryCompletedEvent.getStatistics().getQueuedTime().toMillis() / 1000.0);
-        record.setPeakMemoryBytes(queryCompletedEvent.getStatistics().getPeakMemoryBytes());
-        record.setTotalBytes(queryCompletedEvent.getStatistics().getTotalBytes());
-        record.setTotalRows(queryCompletedEvent.getStatistics().getTotalRows());
-        record.setCompletedSplits(queryCompletedEvent.getStatistics().getCompletedSplits());
+        record.setCpuTime(event.getStatistics().getCpuTime().toMillis() / 1000.0);
+        record.setWallTime(event.getStatistics().getWallTime().toMillis() / 1000.0);
+        record.setQueuedTime(event.getStatistics().getQueuedTime().toMillis() / 1000.0);
+        record.setPeakMemoryBytes(event.getStatistics().getPeakMemoryBytes());
+        record.setTotalBytes(event.getStatistics().getTotalBytes());
+        record.setTotalRows(event.getStatistics().getTotalRows());
+        record.setCompletedSplits(event.getStatistics().getCompletedSplits());
 
-        record.setCreateTime(formatter.format(queryCompletedEvent.getCreateTime()));
-        record.setExecutionStartTime(formatter.format(queryCompletedEvent.getExecutionStartTime()));
-        record.setEndTime(formatter.format(queryCompletedEvent.getEndTime()));
+        record.setCreateTime(formatter.format(event.getCreateTime()));
+        record.setExecutionStartTime(formatter.format(event.getExecutionStartTime()));
+        record.setEndTime(formatter.format(event.getEndTime()));
 
-        record.setCreateTimestamp(queryCompletedEvent.getCreateTime().toEpochMilli() / 1000.0);
-        record.setExecutionStartTimestamp(queryCompletedEvent.getExecutionStartTime().toEpochMilli() / 1000.0);
-        record.setEndTimestamp(queryCompletedEvent.getEndTime().toEpochMilli() / 1000.0);
+        record.setCreateTimestamp(event.getCreateTime().toEpochMilli() / 1000.0);
+        record.setExecutionStartTimestamp(event.getExecutionStartTime().toEpochMilli() / 1000.0);
+        record.setEndTimestamp(event.getEndTime().toEpochMilli() / 1000.0);
 
         // Error information
-        if (queryCompletedEvent.getFailureInfo().isPresent()) {
-            QueryFailureInfo failureInfo = queryCompletedEvent.getFailureInfo().get();
+        if (event.getFailureInfo().isPresent()) {
+            QueryFailureInfo failureInfo = event.getFailureInfo().get();
             record.setErrorCode(failureInfo.getErrorCode().getCode());
             record.setErrorName(failureInfo.getErrorCode().getName());
             if (failureInfo.getFailureType().isPresent()) {
@@ -107,10 +107,10 @@ public class AuditLogListener
             record.setFailuresJson(failureInfo.getFailuresJson());
         }
 
-        record.setRemoteClientAddress(queryCompletedEvent.getContext().getRemoteClientAddress().orElse(""));
-        record.setClientUser(queryCompletedEvent.getContext().getUser());
-        record.setUserAgent(queryCompletedEvent.getContext().getUserAgent().orElse(""));
-        record.setSource(queryCompletedEvent.getContext().getSource().orElse(""));
+        record.setRemoteClientAddress(event.getContext().getRemoteClientAddress().orElse(""));
+        record.setClientUser(event.getContext().getUser());
+        record.setUserAgent(event.getContext().getUserAgent().orElse(""));
+        record.setSource(event.getContext().getSource().orElse(""));
         return record;
     }
 }
