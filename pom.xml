@@ -194,6 +194,19 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.20.1</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <user.timezone>Asia/Tokyo</user.timezone>
+                        <!--<user.timezone>America/Los_Angeles</user.timezone>-->
+                        <!--<user.timezone>UTC</user.timezone>-->
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+
             <!-- Build rpm using the untarred artifacts BEGIN -->
             <!--
             <plugin>
