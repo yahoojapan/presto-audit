@@ -235,7 +235,7 @@
                     <license>ASL 2.0</license>
                     <release>${build.no}.el7</release>
                     <needarch>true</needarch>
-                    <epoch>${build.no}</epoch>
+                    <epoch>0</epoch>
                     <url>https://github.com/yahoojapan/presto-audit</url>
                     <mappings>
                         <mapping>
