@@ -23,8 +23,10 @@ import com.facebook.presto.spi.eventlistener.QueryInputMetadata;
 import com.facebook.presto.spi.eventlistener.QueryMetadata;
 import com.facebook.presto.spi.eventlistener.QueryStatistics;
 import com.facebook.presto.spi.eventlistener.StageCpuDistribution;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -43,7 +45,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Test(singleThreaded = true)
-public class TestAuditLogListener
+public class TestAuditFullLogListener
 {
     private URI uri;
     private QueryStatistics statistics;
@@ -111,7 +113,7 @@ public class TestAuditLogListener
 
     @Test
     public void testBuildAuditRecordNormal()
-            throws URISyntaxException
+            throws JsonProcessingException
     {
         QueryMetadata metadata = new QueryMetadata("20170606_044544_00024_nfhe3",
                 Optional.of("4c52973c-14c6-4534-837f-238e21d9b061"),
@@ -129,21 +131,13 @@ public class TestAuditLogListener
                 executionStartTime,
                 endTime);
 
-        AuditRecord record = listener.buildAuditRecord(queryCompletedEvent);
+        String record = listener.buildFullAuditLog(queryCompletedEvent);
 
-        assertThat(gson.toJson(record))
+        assertThat(record)
                 .contains("\"queryId\":\"20170606_044544_00024_nfhe3\"")
                 .contains("\"query\":\"select * from airdelays_s3_csv WHERE kw = 'presto-kw-example' limit 5\"")
                 .contains("\"userAgent\":\"StatementClient 0.167\"")
                 .contains("\"source\":\"presto-cli\"")
-                .contains("\"errorCode\":0")
-                .contains("\"createTime\":\"20170715100000.000\"")
-                .contains("\"executionStartTime\":\"20170715100001.000\"")
-                .contains("\"endTime\":\"20170715100003.000\"")
-                .contains("\"createTimestamp\":1.5000804E9")
-                .contains("\"executionStartTimestamp\":1.500080401E9")
-                .contains("\"endTimestamp\":1.500080403E9")
-                .contains("\"eventType\":\"QueryCompletedEvent\"")
                 .doesNotContain("\"failureMessage\"")
                 .doesNotContain("\"errorName\"")
         ;

@@ -17,15 +17,26 @@ import com.facebook.presto.spi.eventlistener.EventListener;
 import com.facebook.presto.spi.eventlistener.QueryCompletedEvent;
 import com.facebook.presto.spi.eventlistener.QueryCreatedEvent;
 import com.facebook.presto.spi.eventlistener.QueryFailureInfo;
+import com.facebook.presto.spi.eventlistener.QueryIOMetadata;
+import com.facebook.presto.spi.eventlistener.QueryStatistics;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.airlift.json.ObjectMapperProvider;
 import io.airlift.log.Logger;
+import jp.co.yahoo.presto.audit.serializer.QueryCompletedEventSerializer;
+import jp.co.yahoo.presto.audit.serializer.QueryFailureInfoSerializer;
+import jp.co.yahoo.presto.audit.serializer.QueryIOMetadataSerializer;
+import jp.co.yahoo.presto.audit.serializer.QueryStatisticsSerializer;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
@@ -36,11 +47,24 @@ public class AuditLogListener
 
     private final String auditLogPath;
     private final String auditLogFileName;
+    private final Optional<String> auditLogFullFileName;
+    private final ObjectMapper objectMapper;
 
     public AuditLogListener(Map<String, String> requiredConfig)
     {
         auditLogPath = requireNonNull(requiredConfig.get("event-listener.audit-log-path"), "event-listener.audit-log-path is null");
         auditLogFileName = requireNonNull(requiredConfig.get("event-listener.audit-log-filename"), "event-listener.audit-log-filename is null");
+        auditLogFullFileName = Optional.ofNullable(requiredConfig.get("event-listener.audit-log-full-filename"));
+
+        // Initialize objectMapper
+        ObjectMapperProvider objectMapperProvider = new ObjectMapperProvider();
+        SimpleModule serializerModule = new SimpleModule("presto-audit-serializer");
+        objectMapper = objectMapperProvider.get();
+        serializerModule.addSerializer(QueryCompletedEvent.class, new QueryCompletedEventSerializer());
+        serializerModule.addSerializer(QueryStatistics.class, new QueryStatisticsSerializer());
+        serializerModule.addSerializer(QueryIOMetadata.class, new QueryIOMetadataSerializer());
+        serializerModule.addSerializer(QueryFailureInfo.class, new QueryFailureInfoSerializer());
+        objectMapper.registerModule(serializerModule);
     }
 
     @Override
@@ -55,6 +79,8 @@ public class AuditLogListener
         AuditRecord record = buildAuditRecord(queryCompletedEvent);
 
         Gson obj = new GsonBuilder().disableHtmlEscaping().create();
+
+        // Write original log
         try (FileWriter file = new FileWriter(auditLogPath + File.separator + auditLogFileName, true)) {
             file.write(obj.toJson(record));
             file.write(System.lineSeparator());
@@ -63,6 +89,24 @@ public class AuditLogListener
             log.error("Error writing event log to file. ErrorMessage:" + e.getMessage());
             log.error("EventLog write failed:" + obj.toJson(record));
         }
+
+        // Write full log
+        if (auditLogFullFileName.isPresent()) {
+            try (FileWriter file = new FileWriter(auditLogPath + File.separator + auditLogFullFileName.get(), true)) {
+                String json = buildFullAuditLog(queryCompletedEvent);
+                file.write(json);
+                file.write(System.lineSeparator());
+            }
+            catch (Exception e) {
+                log.error("Error writing event log to file. ErrorMessage:" + e.getMessage());
+                log.error("EventLog write failed:" + obj.toJson(record));
+            }
+        }
+    }
+
+    String buildFullAuditLog(QueryCompletedEvent event) throws JsonProcessingException
+    {
+        return objectMapper.writeValueAsString(event);
     }
 
     AuditRecord buildAuditRecord(QueryCompletedEvent event)

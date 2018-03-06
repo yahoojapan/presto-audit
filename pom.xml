@@ -24,7 +24,7 @@
 
     <properties>
         <dep.airlift.version>0.159</dep.airlift.version>
-        <presto.version>0.188</presto.version>
+        <presto.version>0.192</presto.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -35,6 +35,11 @@
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>log</artifactId>
+            <version>${dep.airlift.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.airlift</groupId>
+            <artifactId>json</artifactId>
             <version>${dep.airlift.version}</version>
         </dependency>
 
