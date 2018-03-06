@@ -49,6 +49,11 @@ event-listener.audit-log-path=/var/log/presto/
 event-listener.audit-log-filename=presto-auditlog.log
 ```
 
+To enable full log, add the following line to the file
+```bash
+event-listener.audit-log-full-filename=presto-auditlog-full.log
+```
+
 ## Analyze SQL samples
 Table DDL can be found in src/sql/ddl.sql
 ```sql
