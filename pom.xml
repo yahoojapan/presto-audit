@@ -229,7 +229,7 @@
 
                 <configuration>
                     <name>presto-audit-plugin</name>
-                    <version>1.3</version>
+                    <version>1.4</version>
                     <group>Applications/Databases</group>
                     <description>Presto audit plugin Package.</description>
                     <license>ASL 2.0</license>
