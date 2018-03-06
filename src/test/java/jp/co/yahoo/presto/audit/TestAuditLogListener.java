@@ -36,6 +36,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 
@@ -85,6 +86,7 @@ public class TestAuditLogListener
                 (Optional<String>) Optional.of("example.com"),
                 (Optional<String>) Optional.of("StatementClient 0.167"),
                 (Optional<String>) Optional.of("clientInfo"),
+                new HashSet<String>(),
                 (Optional<String>) Optional.of("presto-cli"),
                 (Optional<String>) Optional.of("catalog"),
                 (Optional<String>) Optional.of("schema"),
@@ -133,7 +135,7 @@ public class TestAuditLogListener
                 .contains("\"queryId\":\"20170606_044544_00024_nfhe3\"")
                 .contains("\"query\":\"select * from airdelays_s3_csv WHERE kw = 'presto-kw-example' limit 5\"")
                 .contains("\"userAgent\":\"StatementClient 0.167\"")
-                .contains("\"source\":\"presto-cli\"}")
+                .contains("\"source\":\"presto-cli\"")
                 .contains("\"errorCode\":0")
                 .contains("\"createTime\":\"20170715100000.000\"")
                 .contains("\"executionStartTime\":\"20170715100001.000\"")
