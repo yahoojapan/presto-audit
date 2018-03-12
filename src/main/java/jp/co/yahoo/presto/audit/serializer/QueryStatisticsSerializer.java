@@ -35,10 +35,10 @@ public class QueryStatisticsSerializer extends StdSerializer<QueryStatistics>
             jsonGenerator.writeObjectField("distributedPlanningTime", value.getDistributedPlanningTime().get().toMillis());
         }
         jsonGenerator.writeObjectField("peakMemoryBytes", value.getPeakMemoryBytes());
-        jsonGenerator.writeObjectField("peakMemoryBytes", value.getPeakMemoryBytes());
         jsonGenerator.writeObjectField("totalBytes", value.getTotalBytes());
         jsonGenerator.writeObjectField("totalRows", value.getTotalRows());
         jsonGenerator.writeObjectField("outputBytes", value.getOutputBytes());
+        jsonGenerator.writeObjectField("outputRows", value.getOutputRows());
         jsonGenerator.writeObjectField("writtenBytes", value.getWrittenBytes());
         jsonGenerator.writeObjectField("writtenRows", value.getWrittenRows());
         jsonGenerator.writeObjectField("cumulativeMemory", value.getCumulativeMemory());
