@@ -33,6 +33,6 @@ public class AuditLogFactory
     public EventListener create(Map<String, String> requiredConfig)
     {
         requireNonNull(requiredConfig, "requiredConfig is null");
-        return new AuditLogListener(requiredConfig);
+        return new AuditLogListener(requiredConfig, AuditLogFileWriter.getInstance());
     }
 }

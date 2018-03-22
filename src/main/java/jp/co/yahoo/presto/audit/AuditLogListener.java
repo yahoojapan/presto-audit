@@ -16,25 +16,12 @@ package jp.co.yahoo.presto.audit;
 import com.facebook.presto.spi.eventlistener.EventListener;
 import com.facebook.presto.spi.eventlistener.QueryCompletedEvent;
 import com.facebook.presto.spi.eventlistener.QueryCreatedEvent;
-import com.facebook.presto.spi.eventlistener.QueryFailureInfo;
-import com.facebook.presto.spi.eventlistener.QueryIOMetadata;
-import com.facebook.presto.spi.eventlistener.QueryStatistics;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import io.airlift.json.ObjectMapperProvider;
 import io.airlift.log.Logger;
-import jp.co.yahoo.presto.audit.serializer.QueryCompletedEventSerializer;
-import jp.co.yahoo.presto.audit.serializer.QueryFailureInfoSerializer;
-import jp.co.yahoo.presto.audit.serializer.QueryIOMetadataSerializer;
-import jp.co.yahoo.presto.audit.serializer.QueryStatisticsSerializer;
+import jp.co.yahoo.presto.audit.serializer.FullLogSerializer;
+import jp.co.yahoo.presto.audit.serializer.SimpleLogSerializer;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
 
@@ -44,27 +31,28 @@ public class AuditLogListener
         implements EventListener
 {
     private static final Logger log = Logger.get(AuditLogListener.class);
+    private final AuditLogFileWriter auditLogWriter;
 
-    private final String auditLogPath;
-    private final String auditLogFileName;
-    private final Optional<String> auditLogFullFileName;
-    private final ObjectMapper objectMapper;
+    private final String simpleLogFilePath;
+    private final Optional<String> fullLogFilePath;
 
-    public AuditLogListener(Map<String, String> requiredConfig)
+    private final FullLogSerializer fullLogSerializer;
+    private final SimpleLogSerializer simpleLogSerializer;
+
+    public AuditLogListener(Map<String, String> requiredConfig, AuditLogFileWriter auditLogWriter)
     {
-        auditLogPath = requireNonNull(requiredConfig.get("event-listener.audit-log-path"), "event-listener.audit-log-path is null");
-        auditLogFileName = requireNonNull(requiredConfig.get("event-listener.audit-log-filename"), "event-listener.audit-log-filename is null");
-        auditLogFullFileName = Optional.ofNullable(requiredConfig.get("event-listener.audit-log-full-filename"));
+        String auditLogPath = requireNonNull(requiredConfig.get("event-listener.audit-log-path"), "event-listener.audit-log-path is null");
+        simpleLogFilePath = auditLogPath + File.separator + requireNonNull(requiredConfig.get("event-listener.audit-log-filename"), "event-listener.audit-log-filename is null");
 
-        // Initialize objectMapper
-        ObjectMapperProvider objectMapperProvider = new ObjectMapperProvider();
-        SimpleModule serializerModule = new SimpleModule("presto-audit-serializer");
-        objectMapper = objectMapperProvider.get();
-        serializerModule.addSerializer(QueryCompletedEvent.class, new QueryCompletedEventSerializer());
-        serializerModule.addSerializer(QueryStatistics.class, new QueryStatisticsSerializer());
-        serializerModule.addSerializer(QueryIOMetadata.class, new QueryIOMetadataSerializer());
-        serializerModule.addSerializer(QueryFailureInfo.class, new QueryFailureInfoSerializer());
-        objectMapper.registerModule(serializerModule);
+        // Only if audit-log-full-filename exist, then output full log
+        Optional<String> auditLogFullFileName = Optional.ofNullable(requiredConfig.get("event-listener.audit-log-full-filename"));
+        fullLogFilePath = auditLogFullFileName.isPresent() ? Optional.of(auditLogPath + File.separator + auditLogFullFileName.get()) : Optional.empty();
+
+        // Initialize file writer
+        this.auditLogWriter = auditLogWriter;
+
+        fullLogSerializer = new FullLogSerializer();
+        simpleLogSerializer = new SimpleLogSerializer();
     }
 
     @Override
@@ -76,86 +64,25 @@ public class AuditLogListener
     @Override
     public void queryCompleted(QueryCompletedEvent queryCompletedEvent)
     {
-        AuditRecord record = buildAuditRecord(queryCompletedEvent);
-
-        Gson obj = new GsonBuilder().disableHtmlEscaping().create();
-
-        // Write original log
-        try (FileWriter file = new FileWriter(auditLogPath + File.separator + auditLogFileName, true)) {
-            file.write(obj.toJson(record));
-            file.write(System.lineSeparator());
-        }
-        catch (Exception e) {
-            log.error("Error writing event log to file. ErrorMessage:" + e.getMessage());
-            log.error("EventLog write failed:" + obj.toJson(record));
-        }
-
-        // Write full log
-        if (auditLogFullFileName.isPresent()) {
-            try (FileWriter file = new FileWriter(auditLogPath + File.separator + auditLogFullFileName.get(), true)) {
-                String json = buildFullAuditLog(queryCompletedEvent);
-                file.write(json);
-                file.write(System.lineSeparator());
-            }
-            catch (Exception e) {
-                log.error("Error writing event log to file. ErrorMessage:" + e.getMessage());
-                log.error("EventLog write failed:" + obj.toJson(record));
-            }
-        }
+        simpleLog(queryCompletedEvent);
+        fullLog(queryCompletedEvent);
     }
 
-    String buildFullAuditLog(QueryCompletedEvent event) throws JsonProcessingException
+    private void simpleLog(QueryCompletedEvent queryCompletedEvent)
     {
-        return objectMapper.writeValueAsString(event);
+        auditLogWriter.write(simpleLogFilePath, simpleLogSerializer.serialize(queryCompletedEvent));
     }
 
-    AuditRecord buildAuditRecord(QueryCompletedEvent event)
+    private void fullLog(QueryCompletedEvent queryCompletedEvent)
     {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSS").withZone(ZoneId.systemDefault());
-
-        AuditRecord record = new AuditRecord();
-        record.setEventType("QueryCompletedEvent");
-        record.setQueryId(event.getMetadata().getQueryId());
-
-        //SQL Query Text
-        record.setQuery(event.getMetadata().getQuery());
-        record.setUri(event.getMetadata().getUri().toString());
-        record.setState(event.getMetadata().getQueryState());
-
-        record.setCpuTime(event.getStatistics().getCpuTime().toMillis() / 1000.0);
-        record.setWallTime(event.getStatistics().getWallTime().toMillis() / 1000.0);
-        record.setQueuedTime(event.getStatistics().getQueuedTime().toMillis() / 1000.0);
-        record.setPeakMemoryBytes(event.getStatistics().getPeakMemoryBytes());
-        record.setTotalBytes(event.getStatistics().getTotalBytes());
-        record.setTotalRows(event.getStatistics().getTotalRows());
-        record.setCompletedSplits(event.getStatistics().getCompletedSplits());
-
-        record.setCreateTime(formatter.format(event.getCreateTime()));
-        record.setExecutionStartTime(formatter.format(event.getExecutionStartTime()));
-        record.setEndTime(formatter.format(event.getEndTime()));
-
-        record.setCreateTimestamp(event.getCreateTime().toEpochMilli() / 1000.0);
-        record.setExecutionStartTimestamp(event.getExecutionStartTime().toEpochMilli() / 1000.0);
-        record.setEndTimestamp(event.getEndTime().toEpochMilli() / 1000.0);
-
-        // Error information
-        if (event.getFailureInfo().isPresent()) {
-            QueryFailureInfo failureInfo = event.getFailureInfo().get();
-            record.setErrorCode(failureInfo.getErrorCode().getCode());
-            record.setErrorName(failureInfo.getErrorCode().getName());
-            if (failureInfo.getFailureType().isPresent()) {
-                record.setFailureType(failureInfo.getFailureType().get());
+        if (fullLogFilePath.isPresent()) {
+            try {
+                auditLogWriter.write(fullLogFilePath.get(), fullLogSerializer.serialize(queryCompletedEvent));
             }
-            if (failureInfo.getFailureMessage().isPresent()) {
-                record.setFailureMessage(failureInfo.getFailureMessage().get());
+            catch (JsonProcessingException e) {
+                log.error("Error in serializing full audit log: " + e.getMessage());
+                log.error("Query failed: " + queryCompletedEvent.getMetadata().getQueryId());
             }
-            record.setFailuresJson(failureInfo.getFailuresJson());
         }
-
-        record.setRemoteClientAddress(event.getContext().getRemoteClientAddress().orElse(""));
-        record.setClientUser(event.getContext().getUser());
-        record.setUserAgent(event.getContext().getUserAgent().orElse(""));
-        record.setSource(event.getContext().getSource().orElse(""));
-        return record;
     }
 }
