@@ -41,17 +41,17 @@ public class AuditLogListener
 
     public AuditLogListener(Map<String, String> requiredConfig, AuditLogFileWriter auditLogWriter)
     {
+        // Simple Log
         String auditLogPath = requireNonNull(requiredConfig.get("event-listener.audit-log-path"), "event-listener.audit-log-path is null");
         simpleLogFilePath = auditLogPath + File.separator + requireNonNull(requiredConfig.get("event-listener.audit-log-filename"), "event-listener.audit-log-filename is null");
 
-        // Only if audit-log-full-filename exist, then output full log
+        // Full Log (only if audit-log-full-filename exist, then output full log)
         Optional<String> auditLogFullFileName = Optional.ofNullable(requiredConfig.get("event-listener.audit-log-full-filename"));
-        fullLogFilePath = auditLogFullFileName.isPresent() ? Optional.of(auditLogPath + File.separator + auditLogFullFileName.get()) : Optional.empty();
+        fullLogFilePath = auditLogFullFileName.map(s -> auditLogPath + File.separator + s);
+        Optional<String> auditLogFullFilter = Optional.ofNullable(requiredConfig.get("event-listener.audit-log-full-filter"));
 
-        // Initialize file writer
         this.auditLogWriter = auditLogWriter;
-
-        fullLogSerializer = new FullLogSerializer();
+        fullLogSerializer = new FullLogSerializer(auditLogFullFilter);
         simpleLogSerializer = new SimpleLogSerializer();
     }
 
@@ -75,7 +75,7 @@ public class AuditLogListener
 
     private void fullLog(QueryCompletedEvent queryCompletedEvent)
     {
-        if (fullLogFilePath.isPresent()) {
+        if (fullLogFilePath.isPresent() && fullLogSerializer.shouldOutput(queryCompletedEvent)) {
             try {
                 auditLogWriter.write(fullLogFilePath.get(), fullLogSerializer.serialize(queryCompletedEvent));
             }

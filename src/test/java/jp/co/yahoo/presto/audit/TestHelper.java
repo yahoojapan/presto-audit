@@ -129,16 +129,31 @@ public class TestHelper
                 endTime);
     }
 
-    public QueryCompletedEvent createRuntimeQueryEvent()
+    public QueryCompletedEvent createQueryWithSource(Optional<String> source)
     {
         setUp();
         QueryMetadata metadata = new QueryMetadata("20170606_044544_00024_nfhe3",
                 Optional.of("4c52973c-14c6-4534-837f-238e21d9b061"),
-                "SELECT * FROM system.runtime.queries WHERE query_id = '20180315_021411_00725_abcde'",
+                "select * from airdelays_s3_csv WHERE kw = 'presto-kw-example' limit 5",
                 "FINISHED",
                 uri,
                 Optional.empty(),
                 Optional.empty());
+        QueryContext context = new QueryContext(
+                "test-user",
+                Optional.of("principal"),
+                Optional.of("example.com"),
+                Optional.of("StatementClient 0.167"),
+                Optional.of("clientInfo"),
+                new HashSet<>(),
+                source,
+                Optional.of("catalog"),
+                Optional.of("schema"),
+                Optional.of(""),
+                new HashMap<>(),
+                "127.0.0.1",
+                "0.175",
+                "environment");
         return new QueryCompletedEvent(metadata,
                 statistics,
                 context,

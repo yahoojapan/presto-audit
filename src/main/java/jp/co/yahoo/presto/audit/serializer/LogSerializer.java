@@ -7,4 +7,5 @@ import java.io.IOException;
 public interface LogSerializer
 {
     String serialize(QueryCompletedEvent event) throws IOException;
+    boolean shouldOutput(QueryCompletedEvent event);
 }

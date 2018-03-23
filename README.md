@@ -43,15 +43,28 @@ create a event-listener.properties file under /etc/presto/ .
 
 eg.
 /etc/presto/event-listener.properties
-```bash
+```text
 event-listener.name=presto-audit-log
 event-listener.audit-log-path=/var/log/presto/
 event-listener.audit-log-filename=presto-auditlog.log
 ```
 
+## full log
 To enable full log, add the following line to the file
-```bash
+```text
 event-listener.audit-log-full-filename=presto-auditlog-full.log
+```
+
+To add a filter for full log, add the following line to the file.
+The filter should be a regex. If the filter match with `--source` of a query, this query will not be
+logged in full log.
+```text
+# Format:
+event-listener.audit-log-full-filter=<regex>
+
+# Example:
+event-listener.audit-log-full-filter=SRE_SYSTEM
+event-listener.audit-log-full-filter=(SRE_SYSTEM|Presto-team)
 ```
 
 ## Analyze SQL samples

@@ -13,16 +13,21 @@
  */
 package jp.co.yahoo.presto.audit.serializer;
 
+import com.facebook.presto.spi.eventlistener.QueryCompletedEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jp.co.yahoo.presto.audit.TestHelper;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.testng.Assert.assertEquals;
 
 @Test(singleThreaded = true)
 public class TestFullLogSerializer
 {
-    private FullLogSerializer fullLogSerializer = new FullLogSerializer();
+    private FullLogSerializer fullLogSerializer = new FullLogSerializer(Optional.empty());
     private TestHelper testHelper = new TestHelper();
 
     @Test
@@ -50,5 +55,33 @@ public class TestFullLogSerializer
                 .contains("\"name\":\"SYNTAX_ERROR\"")
                 .contains("\"failureMessage\":\"line 1:15: mismatched input '0' expecting ')'\"")
                 .contains("\"failureType\":\"com.facebook.presto.sql.parser.ParsingException\"");
+    }
+
+    @DataProvider(name="filter-provider")
+    public Object[][] testData(){
+        String filter1 = "sre_system";
+        String filter2 = "(sre_system|presto-cli)";
+        return new Object[][]{
+                // No filter
+                {Optional.empty(), Optional.empty(), true},
+                {Optional.empty(), Optional.of("presto-cli"), true},
+                {Optional.empty(), Optional.of("sre_system"), true},
+                // Filter1
+                {Optional.of(filter1), Optional.empty(), true},
+                {Optional.of(filter1), Optional.of("presto-cli"), true},
+                {Optional.of(filter1), Optional.of("sre_system"), false},
+                // Filter2
+                {Optional.of(filter2), Optional.empty(), true},
+                {Optional.of(filter2), Optional.of("presto-cli"), false},
+                {Optional.of(filter2), Optional.of("sre_system"), false}
+        };
+    }
+
+    @Test(dataProvider = "filter-provider")
+    public void testShouldOutput(Optional<String> filter, Optional<String> source, boolean result) {
+        FullLogSerializer serializer = new FullLogSerializer(filter);
+        QueryCompletedEvent event = testHelper.createQueryWithSource(source);
+        boolean shouldOutput = serializer.shouldOutput(event);
+        assertEquals(shouldOutput, result);
     }
 }

@@ -4,6 +4,7 @@ import org.testng.annotations.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -30,6 +31,16 @@ public class TestAuditLogListener
         requiredConfig.put("event-listener.audit-log-path", "/test/path_full");
         requiredConfig.put("event-listener.audit-log-filename", "test-filename.log");
         requiredConfig.put("event-listener.audit-log-full-filename", "test-filename-full.log");
+        return new AuditLogListener(requiredConfig, auditLogFileWriter);
+    }
+
+    private AuditLogListener createFullAuditLogListenerWithFilter(AuditLogFileWriter auditLogFileWriter, String filter)
+    {
+        Map<String, String> requiredConfig = new HashMap<>();
+        requiredConfig.put("event-listener.audit-log-path", "/test/path_full");
+        requiredConfig.put("event-listener.audit-log-filename", "test-filename.log");
+        requiredConfig.put("event-listener.audit-log-full-filename", "test-filename-full.log");
+        requiredConfig.put("event-listener.audit-log-full-filter", filter);
         return new AuditLogListener(requiredConfig, auditLogFileWriter);
     }
 
@@ -86,6 +97,40 @@ public class TestAuditLogListener
 
         auditLogListener.queryCompleted(testHelper.createNormalEvent());
         verify(auditLogFileWriterMock, times(1)).write(eq("/test/path_full/test-filename.log"), anyString());
+        verify(auditLogFileWriterMock, times(1)).write(eq("/test/path_full/test-filename-full.log"), anyString());
+    }
+
+    @Test
+    public void testFilter()
+    {
+        AuditLogFileWriter auditLogFileWriterMock = mock(AuditLogFileWriter.class);
+        AuditLogListener auditLogListener = createFullAuditLogListenerWithFilter(auditLogFileWriterMock, "SRE_SYSTEM");
+
+        auditLogListener.queryCompleted(testHelper.createNormalEvent());
+        verify(auditLogFileWriterMock, times(1)).write(eq("/test/path_full/test-filename.log"), anyString());
+        verify(auditLogFileWriterMock, times(1)).write(eq("/test/path_full/test-filename-full.log"), anyString());
+
+        auditLogListener.queryCompleted(testHelper.createQueryWithSource(Optional.of("SRE_SYSTEM")));
+        verify(auditLogFileWriterMock, times(2)).write(eq("/test/path_full/test-filename.log"), anyString());
+        verify(auditLogFileWriterMock, times(1)).write(eq("/test/path_full/test-filename-full.log"), anyString());
+    }
+
+    @Test
+    public void testFilterComplex()
+    {
+        AuditLogFileWriter auditLogFileWriterMock = mock(AuditLogFileWriter.class);
+        AuditLogListener auditLogListener = createFullAuditLogListenerWithFilter(auditLogFileWriterMock, "(SRE_SYSTEM|Presto_team)");
+
+        auditLogListener.queryCompleted(testHelper.createNormalEvent());
+        verify(auditLogFileWriterMock, times(1)).write(eq("/test/path_full/test-filename.log"), anyString());
+        verify(auditLogFileWriterMock, times(1)).write(eq("/test/path_full/test-filename-full.log"), anyString());
+
+        auditLogListener.queryCompleted(testHelper.createQueryWithSource(Optional.of("SRE_SYSTEM")));
+        verify(auditLogFileWriterMock, times(2)).write(eq("/test/path_full/test-filename.log"), anyString());
+        verify(auditLogFileWriterMock, times(1)).write(eq("/test/path_full/test-filename-full.log"), anyString());
+
+        auditLogListener.queryCompleted(testHelper.createQueryWithSource(Optional.of("Presto_team")));
+        verify(auditLogFileWriterMock, times(3)).write(eq("/test/path_full/test-filename.log"), anyString());
         verify(auditLogFileWriterMock, times(1)).write(eq("/test/path_full/test-filename-full.log"), anyString());
     }
 }

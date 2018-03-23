@@ -73,4 +73,10 @@ public class SimpleLogSerializer
         record.setSource(event.getContext().getSource().orElse(""));
         return record;
     }
+
+    @Override
+    public boolean shouldOutput(QueryCompletedEvent event)
+    {
+        return true;
+    }
 }
