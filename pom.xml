@@ -236,7 +236,7 @@
 
                 <configuration>
                     <name>presto-audit-plugin</name>
-                    <version>1.5</version>
+                    <version>${project.version}</version>
                     <group>Applications/Databases</group>
                     <description>Presto audit plugin Package.</description>
                     <license>ASL 2.0</license>
