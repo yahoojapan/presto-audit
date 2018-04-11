@@ -192,6 +192,22 @@
             </plugin>
 
             <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>3.0</version>
+                <configuration>
+                    <header>${project.basedir}/src/license/LICENSE-HEADER.txt</header>
+                    <excludes>
+                        <exclude>*.xml</exclude>
+                        <exclude>src/checkstyle/*</exclude>
+                        <exclude>src/sql/*</exclude>
+                        <exclude>.mvn/**</exclude>
+                        <exclude>mvnw*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.5.3</version>
