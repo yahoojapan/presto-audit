@@ -236,19 +236,21 @@
             </plugin>
 
             <!-- Build rpm using the untarred artifacts BEGIN -->
-            <!--
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>rpm-maven-plugin</artifactId>
                 <version>2.1.5</version>
 
+                <!--
                 <executions>
                     <execution>
+                        <phase>package</phase>
                         <goals>
                             <goal>rpm</goal>
                         </goals>
                     </execution>
                 </executions>
+                -->
 
                 <configuration>
                     <name>presto-audit-plugin</name>
@@ -271,7 +273,6 @@
                     </mappings>
                 </configuration>
             </plugin>
-            -->
         </plugins>
     </build>
 </project>

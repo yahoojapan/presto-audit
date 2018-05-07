@@ -27,6 +27,12 @@ Plugin for Presto to save queries and metrics into files.
 % ./mvnw clean compile package
 ```
 
+## packaging - rpm
+
+```bash
+% ./mvnw clean compile package rpm:rpm
+```
+
 # Usage
 
 ## install
