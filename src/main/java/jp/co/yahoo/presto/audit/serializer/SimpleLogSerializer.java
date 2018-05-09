@@ -59,10 +59,6 @@ public class SimpleLogSerializer
         record.setTotalRows(event.getStatistics().getTotalRows());
         record.setCompletedSplits(event.getStatistics().getCompletedSplits());
 
-        record.setCreateTime(formatter.format(event.getCreateTime()));
-        record.setExecutionStartTime(formatter.format(event.getExecutionStartTime()));
-        record.setEndTime(formatter.format(event.getEndTime()));
-
         record.setCreateTimestamp(event.getCreateTime().toEpochMilli() / 1000.0);
         record.setExecutionStartTimestamp(event.getExecutionStartTime().toEpochMilli() / 1000.0);
         record.setEndTimestamp(event.getEndTime().toEpochMilli() / 1000.0);

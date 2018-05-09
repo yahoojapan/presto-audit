@@ -32,10 +32,6 @@ public class AuditRecord
     private Long totalRows;
     private int completedSplits;
 
-    @Deprecated private String createTime;
-    @Deprecated private String executionStartTime;
-    @Deprecated private String endTime;
-
     private Double createTimestamp;
     private Double executionStartTimestamp;
     private Double endTimestamp;
@@ -219,36 +215,6 @@ public class AuditRecord
     public void setFailuresJson(String failuresJson)
     {
         this.failuresJson = failuresJson;
-    }
-
-    public String getCreateTime()
-    {
-        return createTime;
-    }
-
-    public void setCreateTime(String createTime)
-    {
-        this.createTime = createTime;
-    }
-
-    public String getExecutionStartTime()
-    {
-        return executionStartTime;
-    }
-
-    public void setExecutionStartTime(String executionStartTime)
-    {
-        this.executionStartTime = executionStartTime;
-    }
-
-    public String getEndTime()
-    {
-        return endTime;
-    }
-
-    public void setEndTime(String endTime)
-    {
-        this.endTime = endTime;
     }
 
     public String getRemoteClientAddress()
