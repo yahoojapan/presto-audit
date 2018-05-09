@@ -25,7 +25,9 @@ public class AuditRecord
     private Double cpuTime;
     private Double wallTime;
     private Double queuedTime;
-    private Long peakMemoryBytes;
+    @Deprecated private Long peakMemoryBytes;
+    private Long peakUserMemoryBytes;
+    private Long peakTotalNonRevocableMemoryBytes;
     private Long totalBytes;
     private Long totalRows;
     private int completedSplits;
@@ -317,5 +319,25 @@ public class AuditRecord
     public void setEndTimestamp(Double endTimestamp)
     {
         this.endTimestamp = endTimestamp;
+    }
+
+    public Long getPeakUserMemoryBytes()
+    {
+        return peakUserMemoryBytes;
+    }
+
+    public void setPeakUserMemoryBytes(Long peakUserMemoryBytes)
+    {
+        this.peakUserMemoryBytes = peakUserMemoryBytes;
+    }
+
+    public Long getPeakTotalNonRevocableMemoryBytes()
+    {
+        return peakTotalNonRevocableMemoryBytes;
+    }
+
+    public void setPeakTotalNonRevocableMemoryBytes(Long peakTotalNonRevocableMemoryBytes)
+    {
+        this.peakTotalNonRevocableMemoryBytes = peakTotalNonRevocableMemoryBytes;
     }
 }

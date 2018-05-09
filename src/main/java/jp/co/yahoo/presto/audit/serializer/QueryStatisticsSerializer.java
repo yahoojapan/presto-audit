@@ -47,7 +47,8 @@ public class QueryStatisticsSerializer extends StdSerializer<QueryStatistics>
         if (value.getDistributedPlanningTime().isPresent()) {
             jsonGenerator.writeObjectField("distributedPlanningTime", value.getDistributedPlanningTime().get().toMillis());
         }
-        jsonGenerator.writeObjectField("peakMemoryBytes", value.getPeakMemoryBytes());
+        jsonGenerator.writeObjectField("peakUserMemoryBytes", value.getPeakUserMemoryBytes());
+        jsonGenerator.writeObjectField("peakTotalNonRevocableMemoryBytes", value.getPeakTotalNonRevocableMemoryBytes());
         jsonGenerator.writeObjectField("totalBytes", value.getTotalBytes());
         jsonGenerator.writeObjectField("totalRows", value.getTotalRows());
         jsonGenerator.writeObjectField("outputBytes", value.getOutputBytes());

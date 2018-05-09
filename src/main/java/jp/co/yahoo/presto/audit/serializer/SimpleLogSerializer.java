@@ -53,7 +53,8 @@ public class SimpleLogSerializer
         record.setCpuTime(event.getStatistics().getCpuTime().toMillis() / 1000.0);
         record.setWallTime(event.getStatistics().getWallTime().toMillis() / 1000.0);
         record.setQueuedTime(event.getStatistics().getQueuedTime().toMillis() / 1000.0);
-        record.setPeakMemoryBytes(event.getStatistics().getPeakMemoryBytes());
+        record.setPeakUserMemoryBytes(event.getStatistics().getPeakUserMemoryBytes());
+        record.setPeakTotalNonRevocableMemoryBytes(event.getStatistics().getPeakTotalNonRevocableMemoryBytes());
         record.setTotalBytes(event.getStatistics().getTotalBytes());
         record.setTotalRows(event.getStatistics().getTotalRows());
         record.setCompletedSplits(event.getStatistics().getCompletedSplits());
