@@ -25,7 +25,6 @@ public class AuditRecord
     private Double cpuTime;
     private Double wallTime;
     private Double queuedTime;
-    @Deprecated private Long peakMemoryBytes;
     private Long peakUserMemoryBytes;
     private Long peakTotalNonRevocableMemoryBytes;
     private Long totalBytes;
@@ -125,16 +124,6 @@ public class AuditRecord
     public void setQueuedTime(Double queuedTime)
     {
         this.queuedTime = queuedTime;
-    }
-
-    public Long getPeakMemoryBytes()
-    {
-        return peakMemoryBytes;
-    }
-
-    public void setPeakMemoryBytes(Long peakMemoryBytes)
-    {
-        this.peakMemoryBytes = peakMemoryBytes;
     }
 
     public Long getTotalBytes()
