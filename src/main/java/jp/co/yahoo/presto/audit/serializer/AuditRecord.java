@@ -25,14 +25,11 @@ public class AuditRecord
     private Double cpuTime;
     private Double wallTime;
     private Double queuedTime;
-    private Long peakMemoryBytes;
+    private Long peakUserMemoryBytes;
+    private Long peakTotalNonRevocableMemoryBytes;
     private Long totalBytes;
     private Long totalRows;
     private int completedSplits;
-
-    @Deprecated private String createTime;
-    @Deprecated private String executionStartTime;
-    @Deprecated private String endTime;
 
     private Double createTimestamp;
     private Double executionStartTimestamp;
@@ -129,16 +126,6 @@ public class AuditRecord
         this.queuedTime = queuedTime;
     }
 
-    public Long getPeakMemoryBytes()
-    {
-        return peakMemoryBytes;
-    }
-
-    public void setPeakMemoryBytes(Long peakMemoryBytes)
-    {
-        this.peakMemoryBytes = peakMemoryBytes;
-    }
-
     public Long getTotalBytes()
     {
         return totalBytes;
@@ -219,36 +206,6 @@ public class AuditRecord
         this.failuresJson = failuresJson;
     }
 
-    public String getCreateTime()
-    {
-        return createTime;
-    }
-
-    public void setCreateTime(String createTime)
-    {
-        this.createTime = createTime;
-    }
-
-    public String getExecutionStartTime()
-    {
-        return executionStartTime;
-    }
-
-    public void setExecutionStartTime(String executionStartTime)
-    {
-        this.executionStartTime = executionStartTime;
-    }
-
-    public String getEndTime()
-    {
-        return endTime;
-    }
-
-    public void setEndTime(String endTime)
-    {
-        this.endTime = endTime;
-    }
-
     public String getRemoteClientAddress()
     {
         return remoteClientAddress;
@@ -317,5 +274,25 @@ public class AuditRecord
     public void setEndTimestamp(Double endTimestamp)
     {
         this.endTimestamp = endTimestamp;
+    }
+
+    public Long getPeakUserMemoryBytes()
+    {
+        return peakUserMemoryBytes;
+    }
+
+    public void setPeakUserMemoryBytes(Long peakUserMemoryBytes)
+    {
+        this.peakUserMemoryBytes = peakUserMemoryBytes;
+    }
+
+    public Long getPeakTotalNonRevocableMemoryBytes()
+    {
+        return peakTotalNonRevocableMemoryBytes;
+    }
+
+    public void setPeakTotalNonRevocableMemoryBytes(Long peakTotalNonRevocableMemoryBytes)
+    {
+        this.peakTotalNonRevocableMemoryBytes = peakTotalNonRevocableMemoryBytes;
     }
 }
