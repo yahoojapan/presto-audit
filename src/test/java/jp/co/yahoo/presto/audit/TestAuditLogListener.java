@@ -2,9 +2,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -13,10 +13,9 @@
  */
 package jp.co.yahoo.presto.audit;
 
+import org.apache.pulsar.client.api.PulsarClientException;
 import org.testng.annotations.Test;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyString;
@@ -31,69 +30,81 @@ public class TestAuditLogListener
     TestHelper testHelper = new TestHelper();
 
     private AuditLogListener createSimpleAuditLogListener(AuditLogFileWriter auditLogFileWriter)
+            throws PulsarClientException
     {
-        Map<String, String> requiredConfig = new HashMap<>();
-        requiredConfig.put("event-listener.audit-log-path", "/test/path");
-        requiredConfig.put("event-listener.audit-log-filename", "test-filename.log");
-        return new AuditLogListener(requiredConfig, auditLogFileWriter);
+        AuditConfig config = new AuditConfig()
+                .setAuditLogFileWriter(auditLogFileWriter)
+                .setAuditLogPath("/test/path")
+                .setAuditSimpleLogName("test-filename.log");
+        return new AuditLogListener(config);
     }
 
     private AuditLogListener createFullAuditLogListener(AuditLogFileWriter auditLogFileWriter)
+            throws PulsarClientException
     {
-        Map<String, String> requiredConfig = new HashMap<>();
-        requiredConfig.put("event-listener.audit-log-path", "/test/path_full");
-        requiredConfig.put("event-listener.audit-log-filename", "test-filename.log");
-        requiredConfig.put("event-listener.audit-log-full-filename", "test-filename-full.log");
-        return new AuditLogListener(requiredConfig, auditLogFileWriter);
+        AuditConfig config = new AuditConfig()
+                .setAuditLogFileWriter(auditLogFileWriter)
+                .setAuditLogPath("/test/path_full")
+                .setAuditSimpleLogName("test-filename.log")
+                .setAuditFullLogName("test-filename-full.log");
+        return new AuditLogListener(config);
     }
 
     private AuditLogListener createFullAuditLogListenerWithFilter(AuditLogFileWriter auditLogFileWriter, String filter)
+            throws PulsarClientException
     {
-        Map<String, String> requiredConfig = new HashMap<>();
-        requiredConfig.put("event-listener.audit-log-path", "/test/path_full");
-        requiredConfig.put("event-listener.audit-log-filename", "test-filename.log");
-        requiredConfig.put("event-listener.audit-log-full-filename", "test-filename-full.log");
-        requiredConfig.put("event-listener.audit-log-full-filter", filter);
-        return new AuditLogListener(requiredConfig, auditLogFileWriter);
+        AuditConfig config = new AuditConfig()
+                .setAuditLogFileWriter(auditLogFileWriter)
+                .setAuditLogPath("/test/path_full")
+                .setAuditSimpleLogName("test-filename.log")
+                .setAuditFullLogName("test-filename-full.log")
+                .setLogFilter(filter);
+        return new AuditLogListener(config);
     }
 
     @Test(expectedExceptions = NullPointerException.class)
     public void testCreateAuditLogListenerEmpty()
+            throws PulsarClientException
     {
-        Map<String, String> requiredConfig = new HashMap<>();
-        new AuditLogListener(requiredConfig, AuditLogFileWriter.getInstance());
+        AuditConfig config = new AuditConfig();
+        new AuditLogListener(config);
     }
 
     @Test(expectedExceptions = NullPointerException.class)
     public void testCreateAuditLogListenerMissingPath()
+            throws PulsarClientException
     {
-        Map<String, String> requiredConfig = new HashMap<>();
-        requiredConfig.put("event-listener.audit-log-filename", "test-filename.log");
-        new AuditLogListener(requiredConfig, AuditLogFileWriter.getInstance());
+        AuditConfig config = new AuditConfig()
+                .setAuditSimpleLogName("test-filename.log");
+        new AuditLogListener(config);
     }
 
     @Test(expectedExceptions = NullPointerException.class)
     public void testCreateAuditLogListenerMissingFilename()
+            throws PulsarClientException
     {
-        Map<String, String> requiredConfig = new HashMap<>();
-        requiredConfig.put("event-listener.audit-log-path", "/test/path");
-        new AuditLogListener(requiredConfig, AuditLogFileWriter.getInstance());
+        AuditConfig config = new AuditConfig()
+                .setAuditLogPath("/test/path");
+        new AuditLogListener(config);
     }
 
     @Test
     public void testCreateAuditLogListenerSuccessWithoutFullFilename()
+            throws PulsarClientException
     {
         createSimpleAuditLogListener(AuditLogFileWriter.getInstance());
     }
 
     @Test
     public void testCreateAuditLogListenerSuccessWithFullFilename()
+            throws PulsarClientException
     {
         createFullAuditLogListener(AuditLogFileWriter.getInstance());
     }
 
     @Test
     public void testSimpleLogQueryCompleted()
+            throws PulsarClientException
     {
         AuditLogFileWriter auditLogFileWriterMock = mock(AuditLogFileWriter.class);
         AuditLogListener auditLogListener = createSimpleAuditLogListener(auditLogFileWriterMock);
@@ -104,6 +115,7 @@ public class TestAuditLogListener
 
     @Test
     public void testFullLogQueryCompleted()
+            throws PulsarClientException
     {
         AuditLogFileWriter auditLogFileWriterMock = mock(AuditLogFileWriter.class);
         AuditLogListener auditLogListener = createFullAuditLogListener(auditLogFileWriterMock);
@@ -115,6 +127,7 @@ public class TestAuditLogListener
 
     @Test
     public void testFilter()
+            throws PulsarClientException
     {
         AuditLogFileWriter auditLogFileWriterMock = mock(AuditLogFileWriter.class);
         AuditLogListener auditLogListener = createFullAuditLogListenerWithFilter(auditLogFileWriterMock, "SRE_SYSTEM");
@@ -130,6 +143,7 @@ public class TestAuditLogListener
 
     @Test
     public void testFilterComplex()
+            throws PulsarClientException
     {
         AuditLogFileWriter auditLogFileWriterMock = mock(AuditLogFileWriter.class);
         AuditLogListener auditLogListener = createFullAuditLogListenerWithFilter(auditLogFileWriterMock, "(SRE_SYSTEM|Presto_team)");

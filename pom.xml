@@ -42,6 +42,16 @@
             <artifactId>json</artifactId>
             <version>${dep.airlift.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.airlift</groupId>
+            <artifactId>configuration</artifactId>
+            <version>${dep.airlift.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.airlift</groupId>
+            <artifactId>bootstrap</artifactId>
+            <version>${dep.airlift.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -127,6 +137,18 @@
             <version>${dep.airlift.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+              <groupId>org.apache.pulsar</groupId>
+              <artifactId>pulsar-client</artifactId>
+              <version>1.22.0-incubating</version>
+          </dependency>
+ 
+        <dependency>
+              <groupId>org.apache.pulsar</groupId>
+              <artifactId>pulsar-client-auth-athenz</artifactId>
+              <version>1.22.0-incubating</version>
+          </dependency>
     </dependencies>
 
     <build>
@@ -186,6 +208,16 @@
                         <configuration>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <shadedClassifierName>all</shadedClassifierName>
+                                <filters>
+                                    <filter>
+                                        <artifact>*:*</artifact>
+                                        <excludes>
+                                            <exclude>META-INF/*.SF</exclude>
+                                            <exclude>META-INF/*.DSA</exclude>
+                                            <exclude>META-INF/*.RSA</exclude>
+                                        </excludes>
+                                    </filter>
+                                </filters>
                         </configuration>
                     </execution>
                 </executions>

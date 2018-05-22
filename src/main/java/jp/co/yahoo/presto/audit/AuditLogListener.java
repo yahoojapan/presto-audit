@@ -18,10 +18,15 @@ import com.facebook.presto.spi.eventlistener.QueryCompletedEvent;
 import com.facebook.presto.spi.eventlistener.QueryCreatedEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.airlift.log.Logger;
+import jp.co.yahoo.presto.audit.pulsar.PulsarProducer;
 import jp.co.yahoo.presto.audit.serializer.FullLogSerializer;
 import jp.co.yahoo.presto.audit.serializer.SimpleLogSerializer;
+import org.apache.pulsar.client.api.PulsarClientException;
+
+import javax.inject.Inject;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -32,27 +37,56 @@ public class AuditLogListener
 {
     private static final Logger log = Logger.get(AuditLogListener.class);
     private final AuditLogFileWriter auditLogWriter;
-
     private final String simpleLogFilePath;
     private final Optional<String> fullLogFilePath;
-
+  //  private final Optional<String> auditLogFullFilter;
     private final FullLogSerializer fullLogSerializer;
     private final SimpleLogSerializer simpleLogSerializer;
+    private PulsarProducer pulsarSimpleProducer = null;
+    private PulsarProducer pulsarFullProducer = null;
 
-    public AuditLogListener(Map<String, String> requiredConfig, AuditLogFileWriter auditLogWriter)
+    @Inject
+    public AuditLogListener(AuditConfig auditConfig)
+        throws PulsarClientException
     {
-        // Simple Log
-        String auditLogPath = requireNonNull(requiredConfig.get("event-listener.audit-log-path"), "event-listener.audit-log-path is null");
-        simpleLogFilePath = auditLogPath + File.separator + requireNonNull(requiredConfig.get("event-listener.audit-log-filename"), "event-listener.audit-log-filename is null");
+        this.auditLogWriter = auditConfig.getAuditLogFileWriter();
 
-        // Full Log (only if audit-log-full-filename exist, then output full log)
-        Optional<String> auditLogFullFileName = Optional.ofNullable(requiredConfig.get("event-listener.audit-log-full-filename"));
-        fullLogFilePath = auditLogFullFileName.map(s -> auditLogPath + File.separator + s);
-        Optional<String> auditLogFullFilter = Optional.ofNullable(requiredConfig.get("event-listener.audit-log-full-filter"));
+        String auditLogPath = requireNonNull(auditConfig.getAuditLogPath(), "auditLogPath is null");
+        String simpleLogName = requireNonNull(auditConfig.getAuditSimpleLogName(), "simpleLogName is null");
+        Optional<String> fullLogName = Optional.ofNullable(auditConfig.getAuditFullLogName());
+        this.simpleLogFilePath = auditLogPath + File.separator + simpleLogName;
+        this.fullLogFilePath = fullLogName.map(s -> auditLogPath + File.separator + s);
+        Optional<String> auditLogFullFilter = Optional.ofNullable(auditConfig.getLogFilter());
 
-        this.auditLogWriter = auditLogWriter;
+        Optional<String> simpleLogTopic = Optional.ofNullable(auditConfig.getSimpleTopic());
+        Optional<String> fullLogTopic = Optional.ofNullable(auditConfig.getFullTopic());
+
         fullLogSerializer = new FullLogSerializer(auditLogFullFilter);
         simpleLogSerializer = new SimpleLogSerializer();
+
+        if (simpleLogTopic.isPresent() || fullLogTopic.isPresent()) {
+            String url = requireNonNull(auditConfig.getPulsarUrl());
+            String trustCerts = requireNonNull(auditConfig.getTrustCertsPath());
+
+            Map<String, String> authParams = new HashMap<String, String>();
+            authParams.put("tenantDomain", requireNonNull(auditConfig.getTenantDomain()));
+            authParams.put("tenantService", requireNonNull(auditConfig.getTenantService()));
+            authParams.put("providerDomain", requireNonNull(auditConfig.getProviderDomain()));
+            authParams.put("privateKey", requireNonNull(auditConfig.getPrivateKeyPath()));
+            authParams.put("athenzConfPath", requireNonNull(auditConfig.getAthenzConfPath()));
+            authParams.put("principalHeader", requireNonNull(auditConfig.getPrincipalHeader()));
+            authParams.put("roleHeader", requireNonNull(auditConfig.getRoleHeader()));
+
+            if (simpleLogTopic.isPresent()) {
+                pulsarSimpleProducer = new PulsarProducer();
+                pulsarSimpleProducer.initProducer(simpleLogTopic.get(), url, trustCerts, authParams);
+            }
+
+            if (fullLogTopic.isPresent()) {
+                pulsarFullProducer = new PulsarProducer();
+                pulsarFullProducer.initProducer(fullLogTopic.get(), url, trustCerts, authParams);
+            }
+        }
     }
 
     @Override
@@ -70,14 +104,22 @@ public class AuditLogListener
 
     private void simpleLog(QueryCompletedEvent queryCompletedEvent)
     {
-        auditLogWriter.write(simpleLogFilePath, simpleLogSerializer.serialize(queryCompletedEvent));
+        String simpleLog = simpleLogSerializer.serialize(queryCompletedEvent);
+        auditLogWriter.write(simpleLogFilePath, simpleLog);
+        if (pulsarSimpleProducer != null) {
+            pulsarSimpleProducer.send(simpleLog);
+        }
     }
 
     private void fullLog(QueryCompletedEvent queryCompletedEvent)
     {
         if (fullLogFilePath.isPresent() && fullLogSerializer.shouldOutput(queryCompletedEvent)) {
             try {
-                auditLogWriter.write(fullLogFilePath.get(), fullLogSerializer.serialize(queryCompletedEvent));
+                String fullLog = fullLogSerializer.serialize(queryCompletedEvent);
+                auditLogWriter.write(fullLogFilePath.get(), fullLog);
+                if (pulsarFullProducer != null) {
+                    pulsarFullProducer.send(fullLog);
+                }
             }
             catch (JsonProcessingException e) {
                 log.error("Error in serializing full audit log: " + e.getMessage());
