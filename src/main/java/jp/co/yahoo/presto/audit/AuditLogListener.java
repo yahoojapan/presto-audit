@@ -39,7 +39,6 @@ public class AuditLogListener
     private final AuditLogFileWriter auditLogWriter;
     private final String simpleLogFilePath;
     private final Optional<String> fullLogFilePath;
-  //  private final Optional<String> auditLogFullFilter;
     private final FullLogSerializer fullLogSerializer;
     private final SimpleLogSerializer simpleLogSerializer;
     private PulsarProducer pulsarSimpleProducer = null;

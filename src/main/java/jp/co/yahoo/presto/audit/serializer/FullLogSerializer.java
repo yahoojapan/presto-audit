@@ -30,7 +30,7 @@ public class FullLogSerializer
         implements LogSerializer
 {
     private final ObjectMapper objectMapper;
-    Pattern filter;
+    private Pattern filter;
 
     public FullLogSerializer(Optional<String> auditLogFullFilter)
     {

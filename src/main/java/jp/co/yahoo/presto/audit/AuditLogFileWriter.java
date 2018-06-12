@@ -39,7 +39,7 @@ public class AuditLogFileWriter
 
     private volatile boolean isTerminate = false;
     private final BlockingQueue<Map.Entry<String, String>> queue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
-    LoadingCache<String, FileWriter> fileWriters;
+    private LoadingCache<String, FileWriter> fileWriters;
 
     private AuditLogFileWriter(WriterFactory writerFactory)
     {
@@ -49,7 +49,7 @@ public class AuditLogFileWriter
         RemovalListener<String, FileWriter> removalListener = removal -> {
             FileWriter h = removal.getValue();
             try {
-                log.info("Close FileWriter: " + removal.getKey());
+                log.debug("Close FileWriter: " + removal.getKey());
                 h.close();
             }
             catch (Exception e) {
@@ -66,9 +66,8 @@ public class AuditLogFileWriter
                             public FileWriter load(String filename) throws IOException
                             {
                                 try {
-                                    log.info("Open new FileWriter: " + filename);
-                                    FileWriter fileWriter = writerFactory.getFileWriter(filename);
-                                    return fileWriter;
+                                    log.debug("Open new FileWriter: " + filename);
+                                    return writerFactory.getFileWriter(filename);
                                 }
                                 catch (Exception e) {
                                     log.error("Failed to open file: " + e.getMessage());
@@ -83,7 +82,7 @@ public class AuditLogFileWriter
      *
      * @return singleton instance
      */
-    public static synchronized AuditLogFileWriter getInstance()
+    static synchronized AuditLogFileWriter getInstance()
     {
         if (singleton == null) {
             singleton = new AuditLogFileWriter(new WriterFactory());
@@ -95,7 +94,7 @@ public class AuditLogFileWriter
     /**
      * Start the thread for file writing
      */
-    public void start()
+    void start()
     {
         isTerminate = false;
         t.start();
@@ -104,7 +103,7 @@ public class AuditLogFileWriter
     /**
      * Terminate the thread for file writing
      */
-    public void stop()
+    void stop()
     {
         isTerminate = true;
     }
@@ -112,7 +111,7 @@ public class AuditLogFileWriter
     /**
      * Write data to a particular file indicated by path
      */
-    public void write(String path, String data)
+    void write(String path, String data)
     {
         try {
             queue.add(new AbstractMap.SimpleEntry<>(path, data));
@@ -151,7 +150,7 @@ public class AuditLogFileWriter
 
     static class WriterFactory
     {
-        public FileWriter getFileWriter(String filename) throws IOException
+        FileWriter getFileWriter(String filename) throws IOException
         {
             return new FileWriter(filename, true);
         }
