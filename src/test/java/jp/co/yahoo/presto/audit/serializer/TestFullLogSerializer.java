@@ -46,8 +46,10 @@ public class TestFullLogSerializer
     @Test
     public void testSerializeNormal() throws JsonProcessingException
     {
-        String record = fullLogSerializer.serialize(testHelper.createNormalEvent());
-        assertThat(record)
+        SerializedLog record = fullLogSerializer.serialize(testHelper.createNormalEvent());
+        assertThat(record.getQueryId())
+                .matches("20170606_044544_00024_nfhe3");
+        assertThat(record.getSerializedLog())
                 .contains("\"queryId\":\"20170606_044544_00024_nfhe3\"")
                 .contains("\"query\":\"select * from airdelays_s3_csv WHERE kw = 'presto-kw-example' limit 5\"")
                 .contains("\"userAgent\":\"StatementClient 0.167\"")
@@ -61,8 +63,8 @@ public class TestFullLogSerializer
     @Test
     public void testSerializeFailure() throws JsonProcessingException
     {
-        String record = fullLogSerializer.serialize(testHelper.createFailureEvent());
-        assertThat(record)
+        SerializedLog record = fullLogSerializer.serialize(testHelper.createFailureEvent());
+        assertThat(record.getSerializedLog())
                 .contains("\"failureInfo\"")
                 .contains("\"code\":1")
                 .contains("\"name\":\"SYNTAX_ERROR\"")

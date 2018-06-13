@@ -27,8 +27,10 @@ public class TestSimpleLogSerializer
     @Test
     public void testSerializeNormal()
     {
-        String record = simpleLogSerializer.serialize(testHelper.createNormalEvent());
-        assertThat(record)
+        SerializedLog record = simpleLogSerializer.serialize(testHelper.createNormalEvent());
+        assertThat(record.getQueryId())
+                .matches("20170606_044544_00024_nfhe3");
+        assertThat(record.getSerializedLog())
                 .contains("\"queryId\":\"20170606_044544_00024_nfhe3\"")
                 .contains("\"query\":\"select * from airdelays_s3_csv WHERE kw = 'presto-kw-example' limit 5\"")
                 .contains("\"userAgent\":\"StatementClient 0.167\"")
@@ -45,8 +47,8 @@ public class TestSimpleLogSerializer
     @Test
     public void testSerializeFailure()
     {
-        String record = simpleLogSerializer.serialize(testHelper.createFailureEvent());
-        assertThat(record)
+        SerializedLog record = simpleLogSerializer.serialize(testHelper.createFailureEvent());
+        assertThat(record.getSerializedLog())
                 .contains("\"errorCode\":1")
                 .contains("\"errorName\":\"SYNTAX_ERROR\"")
                 .contains("\"failureMessage\":\"line 1:15: mismatched input '0' expecting ')'\"")

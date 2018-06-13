@@ -13,17 +13,23 @@
  */
 package jp.co.yahoo.presto.audit;
 
+import io.airlift.log.Logger;
+import jp.co.yahoo.presto.audit.serializer.SerializedLog;
+import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 import org.testng.annotations.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static jp.co.yahoo.presto.audit.AuditLogFileWriter.WriterFactory;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -35,6 +41,7 @@ import static org.mockito.Mockito.when;
 @Test(singleThreaded = true, threadPoolSize = 1)
 public class TestAuditLogFileWriter
 {
+    private static final String QUERY_ID = "20170606_044544_00024_abcde";
     private void pause()
     {
         try {
@@ -54,11 +61,11 @@ public class TestAuditLogFileWriter
         System.out.flush();
     }
 
-    private AuditLogFileWriter getNewAuditLogFileWriter(WriterFactory writerFactory) throws Exception
+    private AuditLogFileWriter getNewAuditLogFileWriter(WriterFactory writerFactory, Logger logger) throws Exception
     {
-        Constructor<AuditLogFileWriter> constructor = AuditLogFileWriter.class.getDeclaredConstructor(WriterFactory.class);
+        Constructor<AuditLogFileWriter> constructor = AuditLogFileWriter.class.getDeclaredConstructor(WriterFactory.class, Logger.class);
         constructor.setAccessible(true);
-        AuditLogFileWriter auditLogFileWriter = constructor.newInstance(writerFactory);
+        AuditLogFileWriter auditLogFileWriter = constructor.newInstance(writerFactory, logger);
         auditLogFileWriter.start();
         return auditLogFileWriter;
     }
@@ -79,7 +86,7 @@ public class TestAuditLogFileWriter
         final String DATA = "{\"data\":\"value\"}";
 
         AuditLogFileWriter auditLogFileWriter = AuditLogFileWriter.getInstance();
-        auditLogFileWriter.write(FILE_NAME, DATA);
+        auditLogFileWriter.write(FILE_NAME, new SerializedLog(QUERY_ID, DATA));
     }
 
     @Test
@@ -105,8 +112,8 @@ public class TestAuditLogFileWriter
         });
 
         // Test write
-        AuditLogFileWriter auditLogFileWriter = getNewAuditLogFileWriter(writerFactoryMock);
-        auditLogFileWriter.write(FILE_NAME, DATA);
+        AuditLogFileWriter auditLogFileWriter = getNewAuditLogFileWriter(writerFactoryMock, Logger.get("testWriteAutoCloseFile"));
+        auditLogFileWriter.write(FILE_NAME, new SerializedLog(QUERY_ID, DATA));
 
         // Verify
         pause();
@@ -138,18 +145,22 @@ public class TestAuditLogFileWriter
         });
 
         // Test write
-        AuditLogFileWriter auditLogFileWriter = getNewAuditLogFileWriter(writerFactoryMock);
-        auditLogFileWriter.write(FILE_NAME, DATA);
+        Logger logger = spy(Logger.get("testWriteCloseFileException"));
+        AuditLogFileWriter auditLogFileWriter = getNewAuditLogFileWriter(writerFactoryMock, logger);
+        auditLogFileWriter.write(FILE_NAME, new SerializedLog(QUERY_ID, DATA));
 
-        // Verify
+        // Verify writer
         pause();
         verify(spyFileWriter[0]).write(DATA);
+
+        // Verify logger
+        verify(logger, atLeastOnce()).error(anyString());
     }
 
     @Test
     public void testOpenFileException() throws Exception
     {
-        initTest();
+//        initTest();
         final String FILE_NAME = "/tmp/file1";
         final String DATA = "{\"data\":\"value\"}";
 
@@ -160,8 +171,16 @@ public class TestAuditLogFileWriter
         });
 
         // Test write
-        AuditLogFileWriter auditLogFileWriter = getNewAuditLogFileWriter(writerFactoryMock);
-        auditLogFileWriter.write(FILE_NAME, DATA);
+        Logger logger = spy(Logger.get("testOpenFileException"));
+        AuditLogFileWriter auditLogFileWriter = getNewAuditLogFileWriter(writerFactoryMock, logger);
+        auditLogFileWriter.write(FILE_NAME, new SerializedLog(QUERY_ID, DATA));
+
+        pause();
+        ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
+        verify(logger, atLeastOnce()).error(argument.capture());
+        List<String> values = argument.getAllValues();
+        assert(values.stream().filter(k -> k.contains(QUERY_ID))
+                .collect(Collectors.toList()).size() > 0);
     }
 
     @Test
@@ -184,8 +203,16 @@ public class TestAuditLogFileWriter
         });
 
         // Test write
-        AuditLogFileWriter auditLogFileWriter = getNewAuditLogFileWriter(writerFactoryMock);
-        auditLogFileWriter.write(FILE_NAME, DATA);
+        Logger logger = spy(Logger.get("testWriteException"));
+        AuditLogFileWriter auditLogFileWriter = getNewAuditLogFileWriter(writerFactoryMock, logger);
+        auditLogFileWriter.write(FILE_NAME, new SerializedLog(QUERY_ID, DATA));
+
+        pause();
+        ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
+        verify(logger, atLeastOnce()).error(argument.capture());
+        List<String> values = argument.getAllValues();
+        assert(values.stream().filter(k -> k.contains(QUERY_ID))
+                .collect(Collectors.toList()).size() > 0);
     }
 
     @Test
@@ -202,10 +229,11 @@ public class TestAuditLogFileWriter
         });
 
         // Should log Queue full error
-        AuditLogFileWriter auditLogFileWriter = getNewAuditLogFileWriter(writerFactoryMock);
+        Logger logger = spy(Logger.get("testFullCapacityWrite"));
+        AuditLogFileWriter auditLogFileWriter = getNewAuditLogFileWriter(writerFactoryMock, logger);
         auditLogFileWriter.stop();
         for(int i=0; i<10005; i++) {
-            auditLogFileWriter.write("/tmp/file1", "data1");
+            auditLogFileWriter.write("/tmp/file1", new SerializedLog(QUERY_ID, "data1"));
         }
     }
 
@@ -232,10 +260,10 @@ public class TestAuditLogFileWriter
         });
 
         // Test write
-        AuditLogFileWriter auditLogFileWriter = getNewAuditLogFileWriter(writerFactoryMock);
-        auditLogFileWriter.write(FILE_NAME, DATA);
-        auditLogFileWriter.write(FILE_NAME, DATA);
-        auditLogFileWriter.write(FILE_NAME, DATA);
+        AuditLogFileWriter auditLogFileWriter = getNewAuditLogFileWriter(writerFactoryMock, Logger.get("testMultipleWriteThenClose"));
+        auditLogFileWriter.write(FILE_NAME, new SerializedLog(QUERY_ID, DATA));
+        auditLogFileWriter.write(FILE_NAME, new SerializedLog(QUERY_ID, DATA));
+        auditLogFileWriter.write(FILE_NAME, new SerializedLog(QUERY_ID, DATA));
 
         // Verify
         pause();
@@ -267,10 +295,10 @@ public class TestAuditLogFileWriter
         });
 
         // Test write
-        AuditLogFileWriter auditLogFileWriter = getNewAuditLogFileWriter(writerFactoryMock);
-        auditLogFileWriter.write(FILE_NAME, DATA);
-        auditLogFileWriter.write(FILE_NAME, DATA);
-        auditLogFileWriter.write(FILE_NAME, DATA);
+        AuditLogFileWriter auditLogFileWriter = getNewAuditLogFileWriter(writerFactoryMock, Logger.get("testTimeoutReopenFile"));
+        auditLogFileWriter.write(FILE_NAME, new SerializedLog(QUERY_ID, DATA));
+        auditLogFileWriter.write(FILE_NAME, new SerializedLog(QUERY_ID, DATA));
+        auditLogFileWriter.write(FILE_NAME, new SerializedLog(QUERY_ID, DATA));
 
         // Verify
         pause();
@@ -278,9 +306,9 @@ public class TestAuditLogFileWriter
         verify(spyFileWriter[0], times(1)).close();
 
         // Write again after timeout
-        auditLogFileWriter.write(FILE_NAME, DATA2);
-        auditLogFileWriter.write(FILE_NAME, DATA2);
-        auditLogFileWriter.write(FILE_NAME, DATA2);
+        auditLogFileWriter.write(FILE_NAME, new SerializedLog(QUERY_ID, DATA2));
+        auditLogFileWriter.write(FILE_NAME, new SerializedLog(QUERY_ID, DATA2));
+        auditLogFileWriter.write(FILE_NAME, new SerializedLog(QUERY_ID, DATA2));
         verify(spyFileWriter[0], times(3)).write(DATA);
         verify(spyFileWriter[0], times(1)).close();
     }
@@ -324,11 +352,11 @@ public class TestAuditLogFileWriter
         });
 
         // Test write
-        AuditLogFileWriter auditLogFileWriter = getNewAuditLogFileWriter(writerFactoryMock);
-        auditLogFileWriter.write(FILE_NAME, DATA_A1);
-        auditLogFileWriter.write(FILE_NAME, DATA_A2);
-        auditLogFileWriter.write(FILE_NAME_2, DATA_B1);
-        auditLogFileWriter.write(FILE_NAME_2, DATA_B2);
+        AuditLogFileWriter auditLogFileWriter = getNewAuditLogFileWriter(writerFactoryMock, Logger.get("testMultiFileMultiWriteThenClose"));
+        auditLogFileWriter.write(FILE_NAME, new SerializedLog(QUERY_ID, DATA_A1));
+        auditLogFileWriter.write(FILE_NAME, new SerializedLog(QUERY_ID, DATA_A2));
+        auditLogFileWriter.write(FILE_NAME_2, new SerializedLog(QUERY_ID, DATA_B1));
+        auditLogFileWriter.write(FILE_NAME_2, new SerializedLog(QUERY_ID, DATA_B2));
 
         // Verify
         pause();

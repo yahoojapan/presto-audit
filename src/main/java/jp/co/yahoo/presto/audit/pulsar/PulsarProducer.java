@@ -14,6 +14,7 @@
 package jp.co.yahoo.presto.audit.pulsar;
 
 import io.airlift.log.Logger;
+import jp.co.yahoo.presto.audit.serializer.SerializedLog;
 import org.apache.pulsar.client.api.ClientConfiguration;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.ProducerConfiguration;
@@ -45,13 +46,14 @@ public class PulsarProducer
         producer = pulsarClient.createProducer(topic, prodConf);
     }
 
-    public void send(String message)
+    public void send(SerializedLog message)
     {
         try {
-            producer.send(message.getBytes());
+            producer.send(message.getSerializedLog().getBytes());
         }
         catch (PulsarClientException e) {
-            log.error(e.getMessage());
+            log.error("Failed to send message to Pulsar broker.", e);
+            log.error("Dropped queryID: " + message.getQueryId());
         }
     }
 

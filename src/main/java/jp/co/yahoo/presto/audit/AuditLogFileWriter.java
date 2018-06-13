@@ -13,11 +13,13 @@
  */
 package jp.co.yahoo.presto.audit;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import io.airlift.log.Logger;
+import jp.co.yahoo.presto.audit.serializer.SerializedLog;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -33,13 +35,20 @@ public class AuditLogFileWriter
     private static final int QUEUE_CAPACITY = 10000;
     private static final int FILE_TIMEOUT_SEC = 3;
 
-    private static final Logger log = Logger.get(AuditLogFileWriter.class);
+    private static Logger log = Logger.get(AuditLogFileWriter.class);
     private static AuditLogFileWriter singleton;
     private final Thread t;
 
     private volatile boolean isTerminate = false;
-    private final BlockingQueue<Map.Entry<String, String>> queue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
+    private final BlockingQueue<Map.Entry<String, SerializedLog>> queue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
     private LoadingCache<String, FileWriter> fileWriters;
+
+    @VisibleForTesting
+    private AuditLogFileWriter(WriterFactory writerFactory, Logger logger)
+    {
+        this(writerFactory);
+        log = logger;
+    }
 
     private AuditLogFileWriter(WriterFactory writerFactory)
     {
@@ -62,19 +71,20 @@ public class AuditLogFileWriter
                 .expireAfterWrite(FILE_TIMEOUT_SEC, TimeUnit.SECONDS)
                 .removalListener(removalListener)
                 .build(new CacheLoader<String, FileWriter>()
-                        {
-                            public FileWriter load(String filename) throws IOException
-                            {
-                                try {
-                                    log.debug("Open new FileWriter: " + filename);
-                                    return writerFactory.getFileWriter(filename);
-                                }
-                                catch (Exception e) {
-                                    log.error("Failed to open file: " + e.getMessage());
-                                    throw e;
-                                }
-                            }
-                        });
+                {
+                    public FileWriter load(String filename)
+                            throws IOException
+                    {
+                        try {
+                            log.debug("Open new FileWriter: " + filename);
+                            return writerFactory.getFileWriter(filename);
+                        }
+                        catch (Exception e) {
+                            log.error("Failed to open file: " + e.getMessage());
+                            throw e;
+                        }
+                    }
+                });
     }
 
     /**
@@ -111,16 +121,18 @@ public class AuditLogFileWriter
     /**
      * Write data to a particular file indicated by path
      */
-    void write(String path, String data)
+    void write(String path, SerializedLog data)
     {
         try {
             queue.add(new AbstractMap.SimpleEntry<>(path, data));
         }
         catch (IllegalStateException e) {
             log.error("Error adding error log to queue. Queue full while capacity is " + QUEUE_CAPACITY + ". Error: " + e.getMessage());
+            log.error("Dropped queryID: " + data.getQueryId());
         }
         catch (Exception e) {
             log.error("Unknown error adding error log to queue. ErrorMessage: " + e.getMessage());
+            log.error("Dropped queryID: " + data.getQueryId());
         }
     }
 
@@ -128,29 +140,41 @@ public class AuditLogFileWriter
     public void run()
     {
         while (!isTerminate) {
+            Map.Entry<String, SerializedLog> record;
+
+            // Poll record
             try {
                 // + 1 second before cleanUP to ensure files are marked timeout
-                Map.Entry<String, String> record = queue.poll(FILE_TIMEOUT_SEC + 1, TimeUnit.SECONDS);
-                if (record == null) {
-                    // Timeout from poll() -> release file handlers
-                    fileWriters.cleanUp();
-                }
-                else {
+                record = queue.poll(FILE_TIMEOUT_SEC + 1, TimeUnit.SECONDS);
+            }
+            catch (InterruptedException e) {
+                log.error("Unknown interruptedException.", e);
+                continue;
+            }
+
+            if (record == null) {
+                // Timeout from poll() -> release file handlers
+                fileWriters.cleanUp();
+            }
+            else {
+                try {
                     // New record for writing
                     FileWriter fileWriter = fileWriters.get(record.getKey());
-                    fileWriter.write(record.getValue());
+                    fileWriter.write(record.getValue().getSerializedLog());
                     fileWriter.write(System.lineSeparator());
                 }
-            }
-            catch (Exception e) {
-                log.error("Error writing event log to file in run(). ErrorMessage: " + e.getMessage());
+                catch (Exception e) {
+                    log.error("Error writing event log to file in run()." + e);
+                    log.error("Dropped queryID: " + record.getValue().getQueryId());
+                }
             }
         }
     }
 
     static class WriterFactory
     {
-        FileWriter getFileWriter(String filename) throws IOException
+        FileWriter getFileWriter(String filename)
+                throws IOException
         {
             return new FileWriter(filename, true);
         }

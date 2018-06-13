@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.airlift.log.Logger;
 import jp.co.yahoo.presto.audit.pulsar.PulsarProducer;
 import jp.co.yahoo.presto.audit.serializer.FullLogSerializer;
+import jp.co.yahoo.presto.audit.serializer.SerializedLog;
 import jp.co.yahoo.presto.audit.serializer.SimpleLogSerializer;
 import org.apache.pulsar.client.api.PulsarClientException;
 
@@ -103,7 +104,7 @@ public class AuditLogListener
 
     private void simpleLog(QueryCompletedEvent queryCompletedEvent)
     {
-        String simpleLog = simpleLogSerializer.serialize(queryCompletedEvent);
+        SerializedLog simpleLog = simpleLogSerializer.serialize(queryCompletedEvent);
         auditLogWriter.write(simpleLogFilePath, simpleLog);
         if (pulsarSimpleProducer != null) {
             pulsarSimpleProducer.send(simpleLog);
@@ -114,7 +115,7 @@ public class AuditLogListener
     {
         if (fullLogFilePath.isPresent() && fullLogSerializer.shouldOutput(queryCompletedEvent)) {
             try {
-                String fullLog = fullLogSerializer.serialize(queryCompletedEvent);
+                SerializedLog fullLog = fullLogSerializer.serialize(queryCompletedEvent);
                 auditLogWriter.write(fullLogFilePath.get(), fullLog);
                 if (pulsarFullProducer != null) {
                     pulsarFullProducer.send(fullLog);

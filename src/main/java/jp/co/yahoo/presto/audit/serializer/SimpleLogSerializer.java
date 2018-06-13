@@ -31,10 +31,10 @@ public class SimpleLogSerializer
     }
 
     @Override
-    public String serialize(QueryCompletedEvent event)
+    public SerializedLog serialize(QueryCompletedEvent event)
     {
         AuditRecord record = buildAuditRecord(event);
-        return gson.toJson(record);
+        return new SerializedLog(event.getMetadata().getQueryId(), gson.toJson(record));
     }
 
     AuditRecord buildAuditRecord(QueryCompletedEvent event)

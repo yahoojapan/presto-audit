@@ -45,9 +45,9 @@ public class FullLogSerializer
     }
 
     @Override
-    public String serialize(QueryCompletedEvent event) throws JsonProcessingException
+    public SerializedLog serialize(QueryCompletedEvent event) throws JsonProcessingException
     {
-        return objectMapper.writeValueAsString(event);
+        return new SerializedLog(event.getMetadata().getQueryId(), objectMapper.writeValueAsString(event));
     }
 
     @Override
