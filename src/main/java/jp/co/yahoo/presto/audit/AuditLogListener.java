@@ -79,12 +79,12 @@ public class AuditLogListener
 
             if (simpleLogTopic.isPresent()) {
                 pulsarSimpleProducer = new PulsarProducer();
-                pulsarSimpleProducer.initProducer(simpleLogTopic.get(), url, trustCerts, authParams);
+                pulsarSimpleProducer.initProducer(simpleLogTopic.get(), url, trustCerts, authParams, auditConfig.getUseTLS());
             }
 
             if (fullLogTopic.isPresent()) {
                 pulsarFullProducer = new PulsarProducer();
-                pulsarFullProducer.initProducer(fullLogTopic.get(), url, trustCerts, authParams);
+                pulsarFullProducer.initProducer(fullLogTopic.get(), url, trustCerts, authParams, auditConfig.getUseTLS());
             }
         }
     }

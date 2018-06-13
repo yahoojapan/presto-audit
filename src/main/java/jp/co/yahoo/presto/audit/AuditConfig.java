@@ -37,6 +37,7 @@ public class AuditConfig
     private String principalHeader;
     private String roleHeader;
     private AuditLogFileWriter auditLogFileWriter = AuditLogFileWriter.getInstance();
+    private boolean useTLS = true;
 
     @NotNull
     public AuditLogFileWriter getAuditLogFileWriter()
@@ -159,6 +160,20 @@ public class AuditConfig
     public AuditConfig setTrustCertsPath(String trustCertsPath)
     {
         this.trustCerts = trustCertsPath;
+        return this;
+    }
+
+    @NotNull
+    public boolean getUseTLS()
+    {
+        return useTLS;
+    }
+
+    @Config("event-listener.pulsar.use-TLS")
+    @ConfigDescription("audit log path")
+    public AuditConfig setUseTLS(boolean useTLS)
+    {
+        this.useTLS = useTLS;
         return this;
     }
 

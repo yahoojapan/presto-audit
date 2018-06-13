@@ -42,7 +42,8 @@ public class TestAuditConfig
                 .setProviderDomain(null)
                 .setAthenzConfPath(null)
                 .setPrincipalHeader(null)
-                .setRoleHeader(null));
+                .setRoleHeader(null)
+                .setUseTLS(true));
     }
 
     @Test
@@ -57,13 +58,14 @@ public class TestAuditConfig
                 .put("event-listener.pulsar.full-log-topic", "persistent://namespace/global/test/topic2")
                 .put("event-listener.pulsar.pulsar-url", "pulsar+ssl://pulsar.cluster.com:6651")
                 .put("event-listener.pulsar.pulsar-cert-path", "/etc/pki/tls/certs/ca-bundle.crt")
+                .put("event-listener.pulsar.use-TLS", "false")
                 .put("event-listener.athenz.private-key-path", "/etc/presto/athenz/private.key")
                 .put("event-listener.athenz.tenant-domain", "tenant.pulsar.tenant")
                 .put("event-listener.athenz.tenant-service", "mq")
                 .put("event-listener.athenz.provider-domain", "provider.plusar.tenant")
                 .put("event-listener.athenz.config-path", "/usr/local/etc/pulsar-athenz-config/athenz.conf")
                 .put("event-listener.athenz.principal-header", "Athenz-Principal-Auth")
-                .put("event-listener.athenz.role-header", "Athenz-Principal-Auth")
+                .put("event-listener.athenz.role-header", "Athenz-Role-Auth")
                 .build();
 
         AuditConfig expected = new AuditConfig()
@@ -74,6 +76,7 @@ public class TestAuditConfig
                 .setFullTopic("persistent://namespace/global/test/topic2")
                 .setPrivateKeyPath("/etc/presto/athenz/private.key")
                 .setPulsarUrl("pulsar+ssl://pulsar.cluster.com:6651")
+                .setUseTLS(false)
                 .setTrustCertsPath("/etc/pki/tls/certs/ca-bundle.crt")
                 .setLogFilter("DROP")
                 .setTenantDomain("tenant.pulsar.tenant")
@@ -81,7 +84,7 @@ public class TestAuditConfig
                 .setProviderDomain("provider.plusar.tenant")
                 .setAthenzConfPath("/usr/local/etc/pulsar-athenz-config/athenz.conf")
                 .setPrincipalHeader("Athenz-Principal-Auth")
-                .setRoleHeader("Athenz-Principal-Auth");
+                .setRoleHeader("Athenz-Role-Auth");
 
         assertFullMapping(properties, expected);
     }

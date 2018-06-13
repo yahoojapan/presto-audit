@@ -31,11 +31,11 @@ public class PulsarProducer
     private PulsarClient pulsarClient;
     private Producer producer;
 
-    public void initProducer(String topic, String url, String trustCerts, Map<String, String> authParams)
+    public void initProducer(String topic, String url, String trustCerts, Map<String, String> authParams, boolean useTLS)
             throws PulsarClientException
     {
         ClientConfiguration conf = new ClientConfiguration();
-        conf.setUseTls(true);
+        conf.setUseTls(useTLS);
         conf.setTlsTrustCertsFilePath(trustCerts);
         conf.setAuthentication(AuthenticationAthenz.class.getName(), authParams);
 
