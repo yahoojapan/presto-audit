@@ -73,6 +73,24 @@ event-listener.audit-log-full-filter=SRE_SYSTEM
 event-listener.audit-log-full-filter=(SRE_SYSTEM|Presto-team)
 ```
 
+## Send message to Pulsar broker
+Send the log to Pulsar broker immediately after a query is completed.
+Config:
+```text
+event-listener.pulsar.simple-log-topic=persistent://namespace/global/test/topic1
+event-listener.pulsar.full-log-topic=persistent://namespace/global/test/topic2
+event-listener.pulsar.pulsar-url=pulsar+ssl://pulsar.cluster.com:6651
+event-listener.pulsar.pulsar-cert-path=/etc/pki/tls/certs/ca-bundle.crt
+event-listener.pulsar.use-TLS=true  #Optional
+event-listener.athenz.private-key-path=/etc/presto/athenz/private.key
+event-listener.athenz.tenant-domain=tenant.pulsar.tenant
+event-listener.athenz.tenant-service=mq
+event-listener.athenz.provider-domain=provider.plusar.tenant
+event-listener.athenz.config-path=/usr/local/etc/pulsar-athenz-config/athenz.conf
+event-listener.athenz.principal-header=Athenz-Principal-Auth
+event-listener.athenz.role-header=Athenz-Role-Auth
+```
+
 ## Analyze SQL samples
 Table DDL can be found in src/sql/ddl.sql
 ```sql
