@@ -148,7 +148,7 @@ public class AuditLogFileWriter
                 record = queue.poll(FILE_TIMEOUT_SEC + 1, TimeUnit.SECONDS);
             }
             catch (InterruptedException e) {
-                log.error("Unknown interruptedException.", e);
+                log.error("Unknown interruptedException." + e);
                 continue;
             }
 

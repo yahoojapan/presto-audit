@@ -51,24 +51,21 @@ public class AuditLogListener
     {
         this.auditLogWriter = auditConfig.getAuditLogFileWriter();
 
+        // File logger setting
         String auditLogPath = requireNonNull(auditConfig.getAuditLogPath(), "auditLogPath is null");
         String simpleLogName = requireNonNull(auditConfig.getAuditSimpleLogName(), "simpleLogName is null");
         Optional<String> fullLogName = Optional.ofNullable(auditConfig.getAuditFullLogName());
         this.simpleLogFilePath = auditLogPath + File.separator + simpleLogName;
         this.fullLogFilePath = fullLogName.map(s -> auditLogPath + File.separator + s);
         Optional<String> auditLogFullFilter = Optional.ofNullable(auditConfig.getLogFilter());
-
-        Optional<String> simpleLogTopic = Optional.ofNullable(auditConfig.getSimpleTopic());
-        Optional<String> fullLogTopic = Optional.ofNullable(auditConfig.getFullTopic());
-
         fullLogSerializer = new FullLogSerializer(auditLogFullFilter);
         simpleLogSerializer = new SimpleLogSerializer();
 
+        // Pulsar setting
+        Optional<String> simpleLogTopic = Optional.ofNullable(auditConfig.getSimpleTopic());
+        Optional<String> fullLogTopic = Optional.ofNullable(auditConfig.getFullTopic());
         if (simpleLogTopic.isPresent() || fullLogTopic.isPresent()) {
-            String url = requireNonNull(auditConfig.getPulsarUrl());
-            String trustCerts = requireNonNull(auditConfig.getTrustCertsPath());
-
-            Map<String, String> authParams = new HashMap<String, String>();
+            Map<String, String> authParams = new HashMap<>();
             authParams.put("tenantDomain", requireNonNull(auditConfig.getTenantDomain()));
             authParams.put("tenantService", requireNonNull(auditConfig.getTenantService()));
             authParams.put("providerDomain", requireNonNull(auditConfig.getProviderDomain()));
@@ -77,14 +74,18 @@ public class AuditLogListener
             authParams.put("principalHeader", requireNonNull(auditConfig.getPrincipalHeader()));
             authParams.put("roleHeader", requireNonNull(auditConfig.getRoleHeader()));
 
+            PulsarProducer.Builder builder = new PulsarProducer.Builder()
+                    .setURL(requireNonNull(auditConfig.getPulsarUrl()))
+                    .setTrustCerts(requireNonNull(auditConfig.getTrustCertsPath()))
+                    .setAuthParams(authParams)
+                    .setUseTLS(auditConfig.getUseTLS());
+
             if (simpleLogTopic.isPresent()) {
-                pulsarSimpleProducer = new PulsarProducer();
-                pulsarSimpleProducer.initProducer(simpleLogTopic.get(), url, trustCerts, authParams, auditConfig.getUseTLS());
+                pulsarSimpleProducer = builder.setTopic(simpleLogTopic.get()).build();
             }
 
             if (fullLogTopic.isPresent()) {
-                pulsarFullProducer = new PulsarProducer();
-                pulsarFullProducer.initProducer(fullLogTopic.get(), url, trustCerts, authParams, auditConfig.getUseTLS());
+                pulsarFullProducer = builder.setTopic(fullLogTopic.get()).build();
             }
         }
     }
