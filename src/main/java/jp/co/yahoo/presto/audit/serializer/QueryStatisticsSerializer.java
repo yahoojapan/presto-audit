@@ -60,6 +60,8 @@ public class QueryStatisticsSerializer extends StdSerializer<QueryStatistics>
         jsonGenerator.writeObjectField("isComplete", value.isComplete());
         jsonGenerator.writeObjectField("cpuTimeDistribution", value.getCpuTimeDistribution());
         jsonGenerator.writeObjectField("operatorSummaries", value.getOperatorSummaries());
+        jsonGenerator.writeObjectField("stageGcStatistics", value.getStageGcStatistics());
+        jsonGenerator.writeObjectField("peakTaskTotalMemory", value.peakTaskTotalMemory());
         jsonGenerator.writeEndObject();
     }
 }
