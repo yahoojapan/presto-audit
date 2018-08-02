@@ -15,6 +15,7 @@ package jp.co.yahoo.presto.audit;
 
 import io.airlift.configuration.Config;
 import io.airlift.configuration.ConfigDescription;
+import org.apache.pulsar.client.api.CompressionType;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -36,6 +37,7 @@ public class AuditConfig
     private String athenzConfPath;
     private String principalHeader;
     private String roleHeader;
+    private CompressionType compressionType = CompressionType.NONE;
     private AuditLogFileWriter auditLogFileWriter = AuditLogFileWriter.getInstance();
     private boolean useTLS = true;
 
@@ -174,6 +176,20 @@ public class AuditConfig
     public AuditConfig setUseTLS(boolean useTLS)
     {
         this.useTLS = useTLS;
+        return this;
+    }
+
+    @NotNull
+    public CompressionType getCompressionType()
+    {
+        return compressionType;
+    }
+
+    @Config("event-listener.pulsar.compression-type")
+    @ConfigDescription("message compression type (NONE, LZ4 or ZLIB)")
+    public AuditConfig setCompressionType(CompressionType compressionType)
+    {
+        this.compressionType = compressionType;
         return this;
     }
 

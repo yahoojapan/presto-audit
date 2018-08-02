@@ -2,6 +2,7 @@ package jp.co.yahoo.presto.audit.pulsar;
 
 import jp.co.yahoo.presto.audit.serializer.SerializedLog;
 import org.apache.pulsar.client.api.ClientConfiguration;
+import org.apache.pulsar.client.api.CompressionType;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.ProducerConfiguration;
 import org.apache.pulsar.client.api.PulsarClientException;
@@ -54,10 +55,12 @@ public class TestPulsarProducer
         ProducerConfiguration mockConf = mock(ProducerConfiguration.class);
         ProducerConfiguration conf = new PulsarProducer.Builder()
                 .setSendTimeout(30, TimeUnit.MILLISECONDS)
+                .setCompressionType(CompressionType.ZLIB)
                 .buildProducerConfiguration(mockConf);
 
         assert(mockConf == conf);
         verify(mockConf).setSendTimeout(30, TimeUnit.MILLISECONDS);
+        verify(mockConf).setCompressionType(CompressionType.ZLIB);
     }
 
     @Test(expectedExceptions = PulsarClientException.class)
