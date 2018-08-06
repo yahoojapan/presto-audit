@@ -17,6 +17,7 @@ import com.google.common.annotations.VisibleForTesting;
 import io.airlift.log.Logger;
 import jp.co.yahoo.presto.audit.serializer.SerializedLog;
 import org.apache.pulsar.client.api.ClientConfiguration;
+import org.apache.pulsar.client.api.CompressionType;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.ProducerConfiguration;
 import org.apache.pulsar.client.api.PulsarClient;
@@ -57,6 +58,7 @@ public class PulsarProducer
         private boolean useTLS;
         private int sendTimeout = 3;
         private TimeUnit sendTimeoutUnit = TimeUnit.SECONDS;
+        private CompressionType compressionType = CompressionType.NONE;
 
         public Builder setTopic(String topic)
         {
@@ -95,6 +97,12 @@ public class PulsarProducer
             return this;
         }
 
+        public Builder setCompressionType(CompressionType compressionType)
+        {
+            this.compressionType = compressionType;
+            return this;
+        }
+
         @VisibleForTesting
         ClientConfiguration buildClientConfiguration(ClientConfiguration conf)
                 throws PulsarClientException.UnsupportedAuthenticationException
@@ -110,7 +118,8 @@ public class PulsarProducer
         ProducerConfiguration buildProducerConfiguration(ProducerConfiguration prodConf)
         {
             prodConf.setSendTimeout(sendTimeout, sendTimeoutUnit);
-            return prodConf;
+            prodConf.setCompressionType(compressionType);
+            return  prodConf;
         }
 
         public PulsarProducer build()

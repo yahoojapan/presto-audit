@@ -19,7 +19,7 @@ Plugin for Presto to save queries and metrics into files.
 [![Build Status](https://travis-ci.org/yahoojapan/presto-audit.svg?branch=master)](https://travis-ci.org/yahoojapan/presto-audit)
 
 ## Requirement
-* Presto 0.167 or later
+* Presto 0.193 or later
 
 # Build
 
@@ -81,7 +81,8 @@ event-listener.pulsar.simple-log-topic=persistent://namespace/global/test/topic1
 event-listener.pulsar.full-log-topic=persistent://namespace/global/test/topic2
 event-listener.pulsar.pulsar-url=pulsar+ssl://pulsar.cluster.com:6651
 event-listener.pulsar.pulsar-cert-path=/etc/pki/tls/certs/ca-bundle.crt
-event-listener.pulsar.use-TLS=true  #Optional
+event-listener.pulsar.use-TLS=true  # Optional
+event-listener.pulsar.compression-type=ZLIB  # Optional (default: NONE)
 event-listener.athenz.private-key-path=/etc/presto/athenz/private.key
 event-listener.athenz.tenant-domain=tenant.pulsar.tenant
 event-listener.athenz.tenant-service=mq

@@ -78,6 +78,7 @@ public class AuditLogListener
                     .setURL(requireNonNull(auditConfig.getPulsarUrl()))
                     .setTrustCerts(requireNonNull(auditConfig.getTrustCertsPath()))
                     .setAuthParams(authParams)
+                    .setCompressionType(auditConfig.getCompressionType())
                     .setUseTLS(auditConfig.getUseTLS());
 
             if (simpleLogTopic.isPresent()) {

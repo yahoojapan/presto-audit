@@ -14,6 +14,7 @@
 package jp.co.yahoo.presto.audit;
 
 import com.google.common.collect.ImmutableMap;
+import org.apache.pulsar.client.api.CompressionType;
 import org.testng.annotations.Test;
 
 import java.util.Map;
@@ -43,7 +44,8 @@ public class TestAuditConfig
                 .setAthenzConfPath(null)
                 .setPrincipalHeader(null)
                 .setRoleHeader(null)
-                .setUseTLS(true));
+                .setUseTLS(true)
+                .setCompressionType(CompressionType.NONE));
     }
 
     @Test
@@ -59,6 +61,7 @@ public class TestAuditConfig
                 .put("event-listener.pulsar.pulsar-url", "pulsar+ssl://pulsar.cluster.com:6651")
                 .put("event-listener.pulsar.pulsar-cert-path", "/etc/pki/tls/certs/ca-bundle.crt")
                 .put("event-listener.pulsar.use-TLS", "false")
+                .put("event-listener.pulsar.compression-type", "ZLIB")
                 .put("event-listener.athenz.private-key-path", "/etc/presto/athenz/private.key")
                 .put("event-listener.athenz.tenant-domain", "tenant.pulsar.tenant")
                 .put("event-listener.athenz.tenant-service", "mq")
@@ -77,6 +80,7 @@ public class TestAuditConfig
                 .setPrivateKeyPath("/etc/presto/athenz/private.key")
                 .setPulsarUrl("pulsar+ssl://pulsar.cluster.com:6651")
                 .setUseTLS(false)
+                .setCompressionType(CompressionType.ZLIB)
                 .setTrustCertsPath("/etc/pki/tls/certs/ca-bundle.crt")
                 .setLogFilter("DROP")
                 .setTenantDomain("tenant.pulsar.tenant")
