@@ -7,14 +7,20 @@ CREATE TABLE presto_audit_1 (
   cpuTime DOUBLE,
   wallTime DOUBLE,
   queuedTime DOUBLE,
-  peakMemoryBytes BIGINT,
+  peakMemoryBytes BIGINT,     --Deprecated
+  peakUserMemoryBytes BIGINT,
+  peakTotalNonRevocableMemoryBytes BIGINT,
   totalBytes BIGINT,
   totalRows BIGINT,
   completedSplits INTEGER,
 
-  createTime STRING,
-  executionStartTime STRING,
-  endTime STRING,
+  createTime STRING,          --Deprecated
+  executionStartTime STRING,  --Deprecated
+  endTime STRING,             --Decrecated
+
+  createTimestamp DOUBLE,
+  executionStartTimestamp DOUBLE,
+  endTimestamp DOUBLE,
 
   errorCode INTEGER,
   errorName STRING,
