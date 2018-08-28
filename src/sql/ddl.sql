@@ -34,7 +34,7 @@ CREATE TABLE presto_audit_1 (
   source STRING
   )
 PARTITIONED BY (
-  `ymd` string
+  `ymd` INTEGER
 )
 ROW FORMAT SERDE 'org.apache.hive.hcatalog.data.JsonSerDe'
 ;
