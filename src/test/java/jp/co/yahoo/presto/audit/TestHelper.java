@@ -23,6 +23,9 @@ import com.facebook.presto.spi.eventlistener.QueryInputMetadata;
 import com.facebook.presto.spi.eventlistener.QueryMetadata;
 import com.facebook.presto.spi.eventlistener.QueryStatistics;
 import com.facebook.presto.spi.eventlistener.StageCpuDistribution;
+import com.facebook.presto.spi.resourceGroups.ResourceGroupId;
+import com.facebook.presto.spi.session.ResourceEstimates;
+import io.airlift.units.DataSize;
 
 import java.net.URI;
 import java.time.Duration;
@@ -30,6 +33,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Optional;
@@ -79,11 +83,16 @@ public class TestHelper
                     Optional.of("StatementClient 0.167"),
                     Optional.of("clientInfo"),
                     new HashSet<>(),
+                    new HashSet<>(),
                     Optional.of("presto-cli"),
                     Optional.of("catalog"),
                     Optional.of("schema"),
-                    Optional.of(""),
+                    Optional.of(new ResourceGroupId("testResourceGroup")),
                     new HashMap<>(),
+                    new ResourceEstimates(
+                            Optional.of(io.airlift.units.Duration.valueOf("1s")),
+                            Optional.of(io.airlift.units.Duration.valueOf("1s")),
+                            Optional.of(DataSize.valueOf("6TB"))),
                     "127.0.0.1",
                     "0.175",
                     "environment");
@@ -95,6 +104,8 @@ public class TestHelper
             endTime = ZonedDateTime.of(2017, 6 + 1, 15, 10, 0, 3, 0, jst_zone).toInstant();
         }
         catch (Exception ignoreException) {
+            ignoreException.printStackTrace();
+
         }
     }
 
@@ -113,6 +124,7 @@ public class TestHelper
                 context,
                 ioMetadata,
                 Optional.empty(),
+                Collections.emptyList(),
                 createTime,
                 executionStartTime,
                 endTime);
@@ -136,11 +148,13 @@ public class TestHelper
                 Optional.empty(),
                 "{json-error}"
         );
+
         return new QueryCompletedEvent(metadata,
                 statistics,
                 context,
                 ioMetadata,
                 Optional.of(failureInfo),
+                Collections.emptyList(),
                 createTime,
                 executionStartTime,
                 endTime);
@@ -163,11 +177,16 @@ public class TestHelper
                 Optional.of("StatementClient 0.167"),
                 Optional.of("clientInfo"),
                 new HashSet<>(),
+                new HashSet<>(),
                 source,
                 Optional.of("catalog"),
                 Optional.of("schema"),
-                Optional.of(""),
+                Optional.of(new ResourceGroupId("testResourceGroup")),
                 new HashMap<>(),
+                new ResourceEstimates(
+                        Optional.of(io.airlift.units.Duration.valueOf("1s")),
+                        Optional.of(io.airlift.units.Duration.valueOf("1s")),
+                        Optional.of(DataSize.valueOf("6TB"))),
                 "127.0.0.1",
                 "0.175",
                 "environment");
@@ -176,6 +195,7 @@ public class TestHelper
                 context,
                 ioMetadata,
                 Optional.empty(),
+                Collections.emptyList(),
                 createTime,
                 executionStartTime,
                 endTime);
