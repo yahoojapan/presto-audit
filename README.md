@@ -13,6 +13,12 @@
   limitations under the License. See accompanying LICENSE file.
 {% endcomment %}
 -->
+# ⛔️ THIS REPOSITORY IS DEPRECATED ⛔️
+This repository is no longer maintained. Please refer to the following developer guides:
+* https://prestodb.io/docs/current/develop/event-listener.html
+* https://trino.io/docs/current/develop/event-listener.html
+
+
 # Presto Query Audit Log(log history)
 Plugin for Presto to save queries and metrics into files.
 
